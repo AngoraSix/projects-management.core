@@ -10,4 +10,6 @@ import org.springframework.data.repository.kotlin.CoroutineSortingRepository
  */
 interface ProjectManagementRepository :
     CoroutineSortingRepository<ProjectManagement, String>,
-    ProjectManagementFilterRepository
+    ProjectManagementFilterRepository {
+        suspend fun findByProjectId(projectId: String): ProjectManagement?
+    }

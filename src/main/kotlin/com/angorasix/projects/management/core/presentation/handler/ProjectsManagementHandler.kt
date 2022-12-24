@@ -78,6 +78,28 @@ class ProjectsManagementHandler(
     }
 
     /**
+     * Handler for the Get Single ProjectManagement endpoint,
+     * retrieving a Mono with the requested ProjectManagement.
+     *
+     * @param request - HTTP `ServerRequest` object
+     * @return the `ServerResponse`
+     */
+    suspend fun getProjectManagementByProjectId(request: ServerRequest): ServerResponse {
+        val requestingContributor = request.attributes()[apiConfigs.headers.contributor]
+        val projectId = request.pathVariable("projectId")
+        return service.findSingleProjectManagementByProjectId(projectId)?.let {
+            val outputProjectManagement =
+                it.convertToDto(
+                    requestingContributor as? RequestingContributor,
+                    apiConfigs,
+                    request,
+                )
+            ok().contentType(MediaTypes.HAL_FORMS_JSON)
+                .bodyValueAndAwait(outputProjectManagement)
+        } ?: resolveNotFound("Can't find Project Management using projectId", "Project Management")
+    }
+
+    /**
      * Handler for the Create ProjectManagements endpoint, to create a new ProjectManagement entity.
      *
      * @param request - HTTP `ServerRequest` object

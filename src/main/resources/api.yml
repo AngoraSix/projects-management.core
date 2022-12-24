@@ -7,6 +7,7 @@ configs:
     routes:
       baseListCrudRoute: ""
       baseByIdCrudRoute: "/{id}"
+      baseByProjectIdCrudRoute: "/project/{projectId}"
       createProjectManagement:
         name: createProjectManagement
         basePaths:
@@ -31,3 +32,9 @@ configs:
           - ${configs.api.basePaths.projectsManagement}
         method: GET
         path: ${configs.api.routes.baseListCrudRoute}
+      getProjectManagementByProjectId:
+        name: getProjectManagementByProjectId
+        basePaths:
+          - ${configs.api.basePaths.projectsManagement}
+        method: GET
+        path: ${configs.api.routes.baseByProjectIdCrudRoute}

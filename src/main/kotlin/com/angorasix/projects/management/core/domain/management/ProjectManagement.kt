@@ -2,6 +2,8 @@ package com.angorasix.projects.management.core.domain.management
 
 import org.springframework.data.annotation.Id
 import org.springframework.data.annotation.PersistenceConstructor
+import org.springframework.data.mongodb.core.index.Indexed
+import org.springframework.data.mongodb.core.mapping.Document
 
 /**
  * <p>
@@ -10,9 +12,10 @@ import org.springframework.data.annotation.PersistenceConstructor
  *
  * @author rozagerardo
  */
+@Document
 data class ProjectManagement @PersistenceConstructor private constructor(
     @field:Id val id: String?,
-    val projectId: String,
+    @field:Indexed(unique = true) val projectId: String,
     val constitution: ManagementConstitution,
     var status: ManagementStatus
 ) {

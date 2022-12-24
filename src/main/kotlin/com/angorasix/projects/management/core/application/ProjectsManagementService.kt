@@ -15,6 +15,9 @@ class ProjectsManagementService(private val repository: ProjectManagementReposit
     suspend fun findSingleProjectManagement(id: String): ProjectManagement? =
         repository.findById(id)
 
+    suspend fun findSingleProjectManagementByProjectId(projectId: String): ProjectManagement? =
+        repository.findByProjectId(projectId)
+
     fun findProjectManagements(filter: ListProjectsManagementFilter): Flow<ProjectManagement> =
         repository.findUsingFilter(filter)
 

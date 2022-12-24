@@ -33,12 +33,19 @@ fun mockConstitution(): ManagementConstitution = ManagementConstitution(
     ),
 )
 
-fun mockProjectManagementDto(modifier: String = ""): ProjectManagementDto =
+fun mockProjectManagementDto(modifier: String = getRandomString(5)): ProjectManagementDto =
     ProjectManagementDto(
         "mockedProjectId$modifier",
         mockConstitutionDto(),
         ManagementStatus.STARTUP,
     )
+
+private fun getRandomString(length: Int) : String {
+    val allowedChars = ('A'..'Z') + ('a'..'z') + ('0'..'9')
+    return (1..length)
+        .map { allowedChars.random() }
+        .joinToString("")
+}
 
 fun mockConstitutionDto(): ManagementConstitutionDto = ManagementConstitutionDto(
     listOf(
