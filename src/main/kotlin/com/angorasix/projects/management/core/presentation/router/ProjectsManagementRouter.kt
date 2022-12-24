@@ -34,6 +34,14 @@ class ProjectsManagementRouter(
                     objectMapper,
                 )
             }
+            apiConfigs.routes.baseByProjectIdCrudRoute.nest {
+                method(apiConfigs.routes.getProjectManagementByProjectId.method).nest {
+                    method(
+                        apiConfigs.routes.getProjectManagementByProjectId.method,
+                        handler::getProjectManagementByProjectId,
+                    )
+                }
+            }
             apiConfigs.routes.baseByIdCrudRoute.nest {
                 method(apiConfigs.routes.updateProjectManagement.method).nest {
                     filter { request, next ->

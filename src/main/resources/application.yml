@@ -12,3 +12,4 @@ spring:
   data:
     mongodb:
       uri: ${MONGO_DB_URI:mongodb://localhost:27017/a6-projectsmanagement}
+      auto-index-creation: true

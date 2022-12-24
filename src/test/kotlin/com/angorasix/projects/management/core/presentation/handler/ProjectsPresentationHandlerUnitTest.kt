@@ -55,10 +55,12 @@ class ProjectsManagementHandlerUnitTest {
     private var routeConfigs: RoutesConfigs = RoutesConfigs(
         "",
         "/{id}",
+        "/project/{projectId}",
         Route("mocked-create", listOf("mocked-base1"), HttpMethod.POST, ""),
         Route("mocked-update", listOf("mocked-base1"), HttpMethod.PUT, "/{id}"),
         Route("mocked-get-single", listOf("mocked-base1"), HttpMethod.GET, "/{id}"),
         Route("mocked-list-project", listOf("mocked-base1"), HttpMethod.GET, ""),
+        Route("mocked-get-single-by-projectId", listOf("mocked-base1"), HttpMethod.GET, "")
     )
 
     @BeforeEach

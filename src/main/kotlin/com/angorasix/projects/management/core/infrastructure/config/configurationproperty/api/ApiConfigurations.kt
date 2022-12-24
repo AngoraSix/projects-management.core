@@ -27,10 +27,12 @@ class BasePathConfigs @ConstructorBinding constructor(val projectsManagement: St
 class RoutesConfigs @ConstructorBinding constructor(
     val baseListCrudRoute: String,
     val baseByIdCrudRoute: String,
+    val baseByProjectIdCrudRoute: String,
     val createProjectManagement: Route,
     val updateProjectManagement: Route,
     val getProjectManagement: Route,
     val listProjectManagements: Route,
+    val getProjectManagementByProjectId: Route
 )
 
 data class Route(

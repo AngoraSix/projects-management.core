@@ -13,6 +13,7 @@ import com.fasterxml.jackson.databind.ObjectMapper
 import kotlinx.coroutines.runBlocking
 import org.hamcrest.Matchers.greaterThanOrEqualTo
 import org.hamcrest.Matchers.hasItems
+import org.hamcrest.Matchers.startsWith
 import org.junit.jupiter.api.BeforeAll
 import org.junit.jupiter.api.Test
 import org.junit.jupiter.api.fail
@@ -134,7 +135,7 @@ class ProjectsManagementIntegrationTest(
             .exchange()
             .expectStatus().isCreated.expectBody()
             .jsonPath("$.id").exists()
-            .jsonPath("$.projectId").isEqualTo("mockedProjectId")
+            .jsonPath("$.projectId").value(startsWith("mockedProjectId"))
             .jsonPath("$.constitution.bylaws.size()")
             .value(greaterThanOrEqualTo(2))
             .jsonPath("$.status")
@@ -164,7 +165,7 @@ class ProjectsManagementIntegrationTest(
             .exchange()
             .expectStatus().isOk.expectBody()
             .jsonPath("$.id").isEqualTo(newProjectManagement.id!!)
-            .jsonPath("$.projectId").isEqualTo("mockedProjectId")
+            .jsonPath("$.projectId").value(startsWith("mockedProjectId"))
             .jsonPath("$.status").isEqualTo("STARTUP")
             .jsonPath("$.constitution.bylaws.size()").isEqualTo(2)
     }
