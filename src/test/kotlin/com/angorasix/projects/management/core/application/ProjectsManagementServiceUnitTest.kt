@@ -16,9 +16,8 @@ import io.mockk.junit5.MockKExtension
 import io.mockk.just
 import io.mockk.mockk
 import io.mockk.verifyAll
-import kotlinx.coroutines.flow.collect
 import kotlinx.coroutines.flow.flowOf
-import kotlinx.coroutines.test.runBlockingTest
+import kotlinx.coroutines.test.runTest
 import org.assertj.core.api.AssertionsForClassTypes.assertThat
 import org.junit.jupiter.api.BeforeEach
 import org.junit.jupiter.api.Test
@@ -40,7 +39,7 @@ class ProjectsManagementServiceUnitTest {
     @Throws(Exception::class)
     @kotlinx.coroutines.ExperimentalCoroutinesApi
     fun `given existing projects - when request find projects - then receive projects`() =
-        runBlockingTest {
+        runTest {
             val mockedProjectManagement = ProjectManagement(
                 "mockedProjectId",
                 mockConstitution(),
@@ -61,7 +60,7 @@ class ProjectsManagementServiceUnitTest {
     @Throws(Exception::class)
     @kotlinx.coroutines.ExperimentalCoroutinesApi
     fun `given existing project management - when find single project managements - then service retrieves mono with project management`() =
-        runBlockingTest {
+        runTest {
             val mockedProjectManagementId = "id1"
             val mockedProjectManagement = ProjectManagement(
                 "mockedProjectId",
@@ -79,7 +78,7 @@ class ProjectsManagementServiceUnitTest {
     @Throws(Exception::class)
     @kotlinx.coroutines.ExperimentalCoroutinesApi
     fun `when create project management - then service retrieve saved project management`() =
-        runBlockingTest {
+        runTest {
             val mockedProjectManagement = ProjectManagement(
                 "mockedProjectId",
                 mockConstitution(),
@@ -101,7 +100,7 @@ class ProjectsManagementServiceUnitTest {
     @Throws(Exception::class)
     @kotlinx.coroutines.ExperimentalCoroutinesApi
     fun `when update project management - then service retrieve saved project management`() =
-        runBlockingTest {
+        runTest {
             val mockedExistingProjectManagement = mockk<ProjectManagement>()
             every {
                 mockedExistingProjectManagement.setProperty(ProjectManagement::status.name) value ManagementStatus.OPERATIONAL
@@ -139,7 +138,7 @@ class ProjectsManagementServiceUnitTest {
     @Throws(Exception::class)
     @kotlinx.coroutines.ExperimentalCoroutinesApi
     fun whenUpdateProjectManagement_thenServiceRetrieveUpdatedProjectManagement() =
-        runBlockingTest {
+        runTest {
             val mockedProjectManagement = ProjectManagement(
                 "mockedId",
                 mockConstitution(),
