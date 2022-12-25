@@ -209,6 +209,19 @@ private fun ProjectManagementDto.resolveHypermedia(
         Affordances.of(selfLink).afford(HttpMethod.OPTIONS).withName("default").toLink()
     add(selfLinkWithDefaultAffordance)
 
+    val getByProjectIdRoute = apiConfigs.routes.getProjectManagementByProjectId
+    val getByProjectIdLink =
+        Link.of(
+            uriBuilder(request).path(getByProjectIdRoute.resolvePath())
+                .build().toUriString(),
+        ).withTitle(getByProjectIdRoute.name)
+            .withName(getByProjectIdRoute.name)
+            .withRel(getByProjectIdRoute.name).expand(projectId)
+    val getByProjectIdAffordanceLink =
+        Affordances.of(getByProjectIdLink).afford(HttpMethod.GET)
+            .withName(getByProjectIdRoute.name).toLink()
+    add(getByProjectIdAffordanceLink)
+
     // edit ProjectManagement
     if (requestingContributor != null) {
         if (requestingContributor.isProjectAdmin) {
