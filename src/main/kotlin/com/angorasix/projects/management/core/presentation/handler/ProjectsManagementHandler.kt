@@ -178,7 +178,7 @@ private fun ProjectManagementDto.convertToDomain(): ProjectManagement {
 }
 
 private fun ManagementConstitution.convertToDto(): ManagementConstitutionDto {
-    return ManagementConstitutionDto(bylaws?.map { it.convertToDto() })
+    return ManagementConstitutionDto(bylaws.map { it.convertToDto() })
 }
 
 private fun ManagementConstitutionDto.convertToDomain(): ManagementConstitution {
