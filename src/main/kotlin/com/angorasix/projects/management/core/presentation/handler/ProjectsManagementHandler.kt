@@ -105,7 +105,7 @@ class ProjectsManagementHandler(
         return resolveNotFound(
             "Can't find Project Management using projectId",
             "Project Management",
-            resolveCreateLink(projectId, requestingContributor, apiConfigs, request),
+            resolveCreateByProjectIdLink(projectId, requestingContributor, apiConfigs, request),
         )
     }
 
@@ -121,6 +121,36 @@ class ProjectsManagementHandler(
             val project = try {
                 request.awaitBody<ProjectManagementDto>()
                     .convertToDomain()
+            } catch (e: IllegalArgumentException) {
+                return resolveBadRequest(
+                    e.message ?: "Incorrect Project Management body",
+                    "Project Management",
+                )
+            }
+            val outputProjectManagement = service.createProjectManagement(project)
+                .convertToDto(requestingContributor, apiConfigs, request)
+            val selfLink =
+                outputProjectManagement.links.getRequiredLink(IanaLinkRelations.SELF).href
+            created(URI.create(selfLink)).contentType(MediaTypes.HAL_FORMS_JSON)
+                .bodyValueAndAwait(outputProjectManagement)
+        } else {
+            resolveBadRequest("Invalid Contributor Header", "Contributor Header")
+        }
+    }
+
+    /**
+     * Handler for the Create ProjectManagements endpoint, to create a new ProjectManagement entity.
+     *
+     * @param request - HTTP `ServerRequest` object
+     * @return the `ServerResponse`
+     */
+    suspend fun createProjectManagementByProjectId(request: ServerRequest): ServerResponse {
+        val requestingContributor = request.attributes()[apiConfigs.headers.contributor]
+        val projectId = request.pathVariable("projectId")
+        return if (requestingContributor is RequestingContributor) {
+            val project = try {
+                request.awaitBody<ProjectManagementDto>()
+                    .convertToDomain(projectId)
             } catch (e: IllegalArgumentException) {
                 return resolveBadRequest(
                     e.message ?: "Incorrect Project Management body",
@@ -178,9 +208,13 @@ private fun ProjectManagement.convertToDto(
 ): ProjectManagementDto =
     convertToDto().resolveHypermedia(requestingContributor, apiConfigs, request)
 
-private fun ProjectManagementDto.convertToDomain(): ProjectManagement {
+private fun ProjectManagementDto.convertToDomain(paramProjectId: String? = null): ProjectManagement {
+    if (projectId != null && paramProjectId != null && projectId != paramProjectId) throw IllegalArgumentException(
+        "Mismatching projectId parameters",
+    )
+    val domainProjectId = paramProjectId ?: projectId
     return ProjectManagement(
-        projectId ?: throw IllegalArgumentException("ProjectManagement projectId expected"),
+        domainProjectId ?: throw IllegalArgumentException("ProjectManagement projectId expected"),
         constitution?.convertToDomain()
             ?: throw IllegalArgumentException("ProjectManagement constitution expected"),
         status ?: throw IllegalArgumentException("ProjectManagement status expected"),
@@ -250,20 +284,14 @@ private fun ProjectManagementDto.resolveHypermedia(
     return this
 }
 
-private fun resolveCreateLink(
+private fun resolveCreateByProjectIdLink(
     projectId: String,
     requestingContributor: RequestingContributor?,
     apiConfigs: ApiConfigs,
     request: ServerRequest,
 ): Links {
     val getSingleRoute = apiConfigs.routes.getProjectManagement
-    // self
-    val selfLink =
-        Link.of(uriBuilder(request).path(getSingleRoute.resolvePath()).build().toUriString())
-            .withRel(getSingleRoute.name).expand(projectId).withSelfRel()
-    val selfLinkWithDefaultAffordance =
-        Affordances.of(selfLink).afford(HttpMethod.OPTIONS).withName("default").toLink()
-
+    // self (by projectId
     val getByProjectIdRoute = apiConfigs.routes.getProjectManagementByProjectId
     val getByProjectIdLink =
         Link.of(
@@ -271,13 +299,13 @@ private fun resolveCreateLink(
                 .build().toUriString(),
         ).withTitle(getByProjectIdRoute.name)
             .withName(getByProjectIdRoute.name)
-            .withRel(getByProjectIdRoute.name).expand(projectId)
+            .withRel(getByProjectIdRoute.name).expand(projectId).withSelfRel()
     val getByProjectIdAffordanceLink =
         Affordances.of(getByProjectIdLink).afford(HttpMethod.GET)
             .withName(getByProjectIdRoute.name).toLink()
 
     // create
-    val createRoute = apiConfigs.routes.createProjectManagement
+    val createRoute = apiConfigs.routes.createProjectManagementByProjectId
     if (requestingContributor != null && requestingContributor.isProjectAdmin) {
         val createLink =
             Link.of(uriBuilder(request).path(createRoute.resolvePath()).build().toUriString())
@@ -286,14 +314,12 @@ private fun resolveCreateLink(
             Affordances.of(createLink).afford(HttpMethod.POST)
                 .withName(createRoute.name).toLink()
         return Links.of(
-            selfLinkWithDefaultAffordance,
             getByProjectIdAffordanceLink,
             createAffordanceLink,
         )
     }
 
     return Links.of(
-        selfLinkWithDefaultAffordance,
         getByProjectIdAffordanceLink,
     )
 }

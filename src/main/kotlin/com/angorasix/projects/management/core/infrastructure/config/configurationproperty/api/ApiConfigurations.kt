@@ -28,6 +28,7 @@ class RoutesConfigs constructor(
     val baseByIdCrudRoute: String,
     val baseByProjectIdCrudRoute: String,
     val createProjectManagement: Route,
+    val createProjectManagementByProjectId: Route,
     val updateProjectManagement: Route,
     val getProjectManagement: Route,
     val listProjectManagements: Route,

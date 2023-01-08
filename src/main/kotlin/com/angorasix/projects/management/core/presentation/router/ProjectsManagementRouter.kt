@@ -35,6 +35,19 @@ class ProjectsManagementRouter(
                 )
             }
             apiConfigs.routes.baseByProjectIdCrudRoute.nest {
+                method(apiConfigs.routes.createProjectManagementByProjectId.method).nest {
+                    filter { request, next ->
+                        checkRequestingContributor(
+                            request,
+                            next,
+                            apiConfigs.headers.contributor,
+                        )
+                    }
+                    method(
+                        apiConfigs.routes.createProjectManagementByProjectId.method,
+                        handler::createProjectManagementByProjectId,
+                    )
+                }
                 method(apiConfigs.routes.getProjectManagementByProjectId.method).nest {
                     method(
                         apiConfigs.routes.getProjectManagementByProjectId.method,

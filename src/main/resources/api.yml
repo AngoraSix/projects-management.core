@@ -14,6 +14,12 @@ configs:
           - ${configs.api.basePaths.projectsManagement}
         method: POST
         path: ${configs.api.routes.baseListCrudRoute}
+      createProjectManagementByProjectId:
+        name: createProjectManagementByProjectId
+        basePaths:
+          - ${configs.api.basePaths.projectsManagement}
+        method: POST
+        path: ${configs.api.routes.baseByProjectIdCrudRoute}
       updateProjectManagement:
         name: updateProjectManagement
         basePaths:
