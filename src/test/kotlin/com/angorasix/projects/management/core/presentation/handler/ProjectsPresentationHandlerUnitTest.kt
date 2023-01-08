@@ -1,7 +1,6 @@
 package com.angorasix.projects.management.core.presentation.handler
 
 import com.angorasix.commons.domain.RequestingContributor
-import com.angorasix.commons.infrastructure.presentation.error.ErrorResponseBody
 import com.angorasix.projects.management.core.application.ProjectsManagementService
 import com.angorasix.projects.management.core.domain.management.ManagementStatus
 import com.angorasix.projects.management.core.domain.management.ProjectManagement
@@ -30,6 +29,8 @@ import org.assertj.core.api.AssertionsForClassTypes.assertThat
 import org.junit.jupiter.api.BeforeEach
 import org.junit.jupiter.api.Test
 import org.junit.jupiter.api.extension.ExtendWith
+import org.springframework.hateoas.mediatype.problem.Problem
+import org.springframework.hateoas.mediatype.problem.Problem.ExtendedProblem
 import org.springframework.http.HttpMethod
 import org.springframework.http.HttpStatus
 import org.springframework.mock.http.server.reactive.MockServerHttpRequest
@@ -57,6 +58,7 @@ class ProjectsManagementHandlerUnitTest {
         "/{id}",
         "/project/{projectId}",
         Route("mocked-create", listOf("mocked-base1"), HttpMethod.POST, ""),
+        Route("mocked-create-by-projectId", listOf("mocked-base1"), HttpMethod.POST, ""),
         Route("mocked-update", listOf("mocked-base1"), HttpMethod.PUT, "/{id}"),
         Route("mocked-get-single", listOf("mocked-base1"), HttpMethod.GET, "/{id}"),
         Route("mocked-list-project", listOf("mocked-base1"), HttpMethod.GET, ""),
@@ -144,10 +146,11 @@ class ProjectsManagementHandlerUnitTest {
 
             assertThat(outputResponse.statusCode()).isEqualTo(HttpStatus.BAD_REQUEST)
             val response = @Suppress("UNCHECKED_CAST")
-            outputResponse as EntityResponse<ErrorResponseBody>
+            outputResponse as EntityResponse<ExtendedProblem<Any>>
             val responseBody = response.entity()
             assertThat(responseBody.status).isEqualTo(400)
-            assertThat(responseBody.errorCode).isEqualTo("CONTRIBUTOR_HEADER_INVALID")
+            var properties = responseBody.properties as Map<String, Any>?
+            assertThat(properties?.get("errorCode") as String).isEqualTo("CONTRIBUTOR_HEADER_INVALID")
             Unit
         }
 
@@ -170,10 +173,11 @@ class ProjectsManagementHandlerUnitTest {
 
             assertThat(outputResponse.statusCode()).isEqualTo(HttpStatus.BAD_REQUEST)
             val response = @Suppress("UNCHECKED_CAST")
-            outputResponse as EntityResponse<ErrorResponseBody>
+            outputResponse as EntityResponse<ExtendedProblem<Any>>
             val responseBody = response.entity()
             assertThat(responseBody.status).isEqualTo(400)
-            assertThat(responseBody.errorCode).isEqualTo("PROJECT_MANAGEMENT_INVALID")
+            var properties = responseBody.properties as Map<String, Any>?
+            assertThat(properties?.get("errorCode") as String).isEqualTo("PROJECT_MANAGEMENT_INVALID")
             Unit
         }
 
