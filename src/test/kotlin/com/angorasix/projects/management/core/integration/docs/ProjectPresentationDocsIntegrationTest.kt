@@ -158,7 +158,7 @@ class ProjectManagementDocsIntegrationTest(
         val newProjectManagement = mockProjectManagementDto()
         webTestClient.post()
             .uri(
-                "/projects-management/",
+                "/management-core",
             )
             .accept(MediaType.APPLICATION_JSON)
             .contentType(MediaTypes.HAL_FORMS_JSON)
@@ -195,7 +195,7 @@ class ProjectManagementDocsIntegrationTest(
 
         webTestClient.get()
             .uri(
-                "/projects-management/{projectManagementId}",
+                "/management-core/{projectManagementId}",
                 elementId,
             )
             .accept(MediaType.APPLICATION_JSON)
@@ -213,7 +213,7 @@ class ProjectManagementDocsIntegrationTest(
 
     private fun executeAndDocumentGetListProjectsRequest() {
         webTestClient.get()
-            .uri("/projects-management/")
+            .uri("/management-core")
             .accept(MediaType.APPLICATION_JSON)
             .exchange()
             .expectStatus().isOk.expectBody()
