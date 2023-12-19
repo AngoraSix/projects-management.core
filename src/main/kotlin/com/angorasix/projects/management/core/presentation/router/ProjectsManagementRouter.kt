@@ -1,7 +1,7 @@
 package com.angorasix.projects.management.core.presentation.router
 
 import com.angorasix.commons.presentation.filter.checkRequestingContributor
-import com.angorasix.commons.presentation.filter.extractRequestingContributor
+import com.angorasix.commons.reactive.presentation.filter.extractRequestingContributor
 import com.angorasix.projects.management.core.infrastructure.config.configurationproperty.api.ApiConfigs
 import com.angorasix.projects.management.core.presentation.handler.ProjectsManagementHandler
 import com.fasterxml.jackson.databind.ObjectMapper

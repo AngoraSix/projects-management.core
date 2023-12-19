@@ -1,6 +1,7 @@
 package com.angorasix.projects.management.core.infrastructure.config.configurationproperty.api
 
 import org.springframework.boot.context.properties.ConfigurationProperties
+import org.springframework.boot.context.properties.NestedConfigurationProperty
 import org.springframework.context.annotation.Configuration
 import org.springframework.http.HttpMethod
 
@@ -11,19 +12,22 @@ import org.springframework.http.HttpMethod
  *
  * @author rozagerardo
  */
-@Configuration
 @ConfigurationProperties(prefix = "configs.api")
-class ApiConfigs {
-    lateinit var headers: HeadersConfigs
-    lateinit var routes: RoutesConfigs
-    lateinit var basePaths: BasePathConfigs
-}
+data class ApiConfigs(
+    @NestedConfigurationProperty
+    var headers: HeadersConfigs,
 
-class HeadersConfigs constructor(val contributor: String)
+    @NestedConfigurationProperty
+    var routes: RoutesConfigs,
 
-class BasePathConfigs constructor(val projectsManagement: String)
+    @NestedConfigurationProperty
+    var basePaths: BasePathConfigs)
 
-class RoutesConfigs constructor(
+data class HeadersConfigs constructor(val contributor: String)
+
+data class BasePathConfigs constructor(val projectsManagement: String)
+
+data class RoutesConfigs constructor(
     val baseListCrudRoute: String,
     val baseByIdCrudRoute: String,
     val baseByProjectIdCrudRoute: String,
