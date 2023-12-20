@@ -1,6 +1,5 @@
 package com.angorasix.projects.management.core.presentation.router
 
-import com.angorasix.commons.presentation.filter.checkRequestingContributor
 import com.angorasix.commons.reactive.presentation.filter.extractRequestingContributor
 import com.angorasix.projects.management.core.infrastructure.config.configurationproperty.api.ApiConfigs
 import com.angorasix.projects.management.core.presentation.handler.ProjectsManagementHandler
@@ -29,20 +28,11 @@ class ProjectsManagementRouter(
             filter { request, next ->
                 extractRequestingContributor(
                     request,
-                    next,
-                    apiConfigs.headers.contributor,
-                    objectMapper,
+                    next
                 )
             }
             apiConfigs.routes.baseByProjectIdCrudRoute.nest {
                 method(apiConfigs.routes.createProjectManagementByProjectId.method).nest {
-                    filter { request, next ->
-                        checkRequestingContributor(
-                            request,
-                            next,
-                            apiConfigs.headers.contributor,
-                        )
-                    }
                     method(
                         apiConfigs.routes.createProjectManagementByProjectId.method,
                         handler::createProjectManagementByProjectId,
@@ -57,13 +47,6 @@ class ProjectsManagementRouter(
             }
             apiConfigs.routes.baseByIdCrudRoute.nest {
                 method(apiConfigs.routes.updateProjectManagement.method).nest {
-                    filter { request, next ->
-                        checkRequestingContributor(
-                            request,
-                            next,
-                            apiConfigs.headers.contributor,
-                        )
-                    }
                     method(
                         apiConfigs.routes.updateProjectManagement.method,
                         handler::updateProjectManagement,
@@ -79,13 +62,6 @@ class ProjectsManagementRouter(
             apiConfigs.routes.baseListCrudRoute.nest {
                 path(apiConfigs.routes.baseListCrudRoute).nest {
                     method(apiConfigs.routes.createProjectManagement.method).nest {
-                        filter { request, next ->
-                            checkRequestingContributor(
-                                request,
-                                next,
-                                apiConfigs.headers.contributor,
-                            )
-                        }
                         method(
                             apiConfigs.routes.createProjectManagement.method,
                             handler::createProjectManagement,

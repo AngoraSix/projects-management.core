@@ -252,7 +252,7 @@ class ProjectsManagementHandlerUnitTest {
     fun `Given existing projects - When get project for Admin Contributor - Then handler retrieves Ok Response with Edit link`() =
         runTest {
             val projectId = "projectId"
-            val mockedSimpleContributor = SimpleContributor("mockedId", true)
+            val mockedSimpleContributor = SimpleContributor("mockedId", emptySet())
 
             val mockedExchange =
                 MockServerWebExchange.from(MockServerHttpRequest.get("/id1-mocked").build())

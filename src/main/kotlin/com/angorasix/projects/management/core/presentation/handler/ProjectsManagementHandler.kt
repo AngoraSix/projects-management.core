@@ -267,7 +267,8 @@ private fun ProjectManagementDto.resolveHypermedia(
     add(getByProjectIdAffordanceLink)
 
     // edit ProjectManagement
-    if (simpleContributor != null && simpleContributor.isProjectAdmin) {
+    if (simpleContributor != null) {
+        // @todo check if admin
         val editProjectManagementRoute = apiConfigs.routes.updateProjectManagement
         val editProjectManagementLink =
             Link.of(
@@ -306,7 +307,8 @@ private fun resolveCreateByProjectIdLink(
 
     // create
     val createRoute = apiConfigs.routes.createProjectManagementByProjectId
-    if (simpleContributor != null && simpleContributor.isProjectAdmin) {
+    if (simpleContributor != null) {
+        // @todo check if admin
         val createLink =
             Link.of(uriBuilder(request).path(createRoute.resolvePath()).build().toUriString())
                 .withRel(createRoute.name).expand(projectId)
