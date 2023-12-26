@@ -1,5 +1,6 @@
 package com.angorasix.projects.management.core.presentation.dto
 
+import com.angorasix.commons.domain.SimpleContributor
 import com.angorasix.projects.management.core.domain.management.ManagementStatus
 import org.springframework.hateoas.RepresentationModel
 
@@ -10,6 +11,7 @@ import org.springframework.hateoas.RepresentationModel
  */
 data class ProjectManagementDto(
     val projectId: String? = null,
+    var admins: Set<SimpleContributor>? = mutableSetOf(),
     val constitution: ManagementConstitutionDto? = null,
     val status: ManagementStatus? = null,
     val id: String? = null,
