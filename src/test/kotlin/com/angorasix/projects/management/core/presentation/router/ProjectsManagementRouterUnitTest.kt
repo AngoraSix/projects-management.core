@@ -84,6 +84,7 @@ class ProjectsManagementRouterUnitTest {
                 .body(
                     ProjectManagementDto(
                         "testProjectId",
+                        emptySet(),
                         mockConstitutionDto(),
                         ManagementStatus.STARTUP,
                     ),
@@ -95,6 +96,7 @@ class ProjectsManagementRouterUnitTest {
                 .body(
                     ProjectManagementDto(
                         "testProjectId",
+                        emptySet(),
                         mockConstitutionDto(),
                         ManagementStatus.STARTUP,
                     ),
