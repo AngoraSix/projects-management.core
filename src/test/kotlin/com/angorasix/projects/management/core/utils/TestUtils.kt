@@ -1,5 +1,6 @@
 package com.angorasix.projects.management.core.utils
 
+import com.angorasix.commons.domain.SimpleContributor
 import com.angorasix.projects.management.core.domain.management.Bylaw
 import com.angorasix.projects.management.core.domain.management.BylawWellknownScope
 import com.angorasix.projects.management.core.domain.management.ManagementConstitution
@@ -16,9 +17,10 @@ import java.util.*
  *
  * @author rozagerardo
  */
-fun mockProjectManagement(modifier: String = ""): ProjectManagement =
+fun mockProjectManagement(modifier: String = "", admins: Set<SimpleContributor> = emptySet()): ProjectManagement =
     ProjectManagement(
         "mockedProjectId$modifier",
+        admins,
         mockConstitution(),
         ManagementStatus.STARTUP,
     )
@@ -36,6 +38,7 @@ fun mockConstitution(): ManagementConstitution = ManagementConstitution(
 fun mockProjectManagementDto(modifier: String = getRandomString(5)): ProjectManagementDto =
     ProjectManagementDto(
         "mockedProjectId$modifier",
+        emptySet(),
         mockConstitutionDto(),
         ManagementStatus.STARTUP,
     )

@@ -158,7 +158,7 @@ class ProjectsManagementHandlerUnitTest {
     fun `Given request with invalid project management - When update project management - Then handler retrieves Bad Request`() =
         runBlocking { // = runBlockingTest { // until we resolve why service.createProject is hanging https://github.com/Kotlin/kotlinx.coroutines/issues/1204
             val mockedProjectManagementDto =
-                ProjectManagementDto(null, mockConstitutionDto(), ManagementStatus.STARTUP)
+                ProjectManagementDto(null, emptySet(), mockConstitutionDto(), ManagementStatus.STARTUP)
             val mockedSimpleContributor = SimpleContributor("mockedId")
             val mockedExchange = MockServerWebExchange.from(
                 MockServerHttpRequest.get("/id1-mocked").build(),
@@ -261,7 +261,7 @@ class ProjectsManagementHandlerUnitTest {
                     .attribute(headerConfigs.contributor, mockedSimpleContributor)
                     .pathVariable("id", projectId).exchange(mockedExchange).build()
             val mockedProjectManagement =
-                mockProjectManagement()
+                mockProjectManagement(admins= setOf(mockedSimpleContributor))
             coEvery { service.findSingleProjectManagement(projectId) } returns mockedProjectManagement
 
             val outputResponse = handler.getProjectManagement(mockedRequest)

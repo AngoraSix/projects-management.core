@@ -42,6 +42,7 @@ class ProjectsManagementServiceUnitTest {
         runTest {
             val mockedProjectManagement = ProjectManagement(
                 "mockedProjectId",
+                emptySet(),
                 mockConstitution(),
                 ManagementStatus.STARTUP,
             )
@@ -64,6 +65,7 @@ class ProjectsManagementServiceUnitTest {
             val mockedProjectManagementId = "id1"
             val mockedProjectManagement = ProjectManagement(
                 "mockedProjectId",
+                emptySet(),
                 mockConstitution(),
                 ManagementStatus.STARTUP,
             )
@@ -81,11 +83,13 @@ class ProjectsManagementServiceUnitTest {
         runTest {
             val mockedProjectManagement = ProjectManagement(
                 "mockedProjectId",
+                emptySet(),
                 mockConstitution(),
                 ManagementStatus.STARTUP,
             )
             val savedProjectManagement = ProjectManagement(
                 "savedProjectId",
+                emptySet(),
                 mockConstitution(),
                 ManagementStatus.STARTUP,
             )
@@ -110,11 +114,13 @@ class ProjectsManagementServiceUnitTest {
             } returns "mockedProjectId"
             val mockedUpdateProjectManagement = ProjectManagement(
                 "mockedProjectId",
+                emptySet(),
                 mockConstitution(),
                 ManagementStatus.OPERATIONAL,
             )
             val savedProjectManagement = ProjectManagement(
                 "savedMockedProjectId",
+                emptySet(),
                 mockConstitution(),
                 ManagementStatus.STARTUP,
             )
@@ -141,11 +147,13 @@ class ProjectsManagementServiceUnitTest {
         runTest {
             val mockedProjectManagement = ProjectManagement(
                 "mockedId",
+                emptySet(),
                 mockConstitution(),
                 ManagementStatus.STARTUP,
             )
             val updatedProjectManagement = ProjectManagement(
                 "mockedId",
+                emptySet(),
                 mockConstitution(),
                 ManagementStatus.OPERATIONAL,
             )

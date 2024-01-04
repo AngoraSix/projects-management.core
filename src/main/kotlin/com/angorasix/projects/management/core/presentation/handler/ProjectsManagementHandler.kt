@@ -1,6 +1,7 @@
 package com.angorasix.projects.management.core.presentation.handler
 
 import com.angorasix.commons.domain.SimpleContributor
+import com.angorasix.commons.infrastructure.constants.AngoraSixInfrastructure
 import com.angorasix.commons.reactive.presentation.error.resolveBadRequest
 import com.angorasix.commons.reactive.presentation.error.resolveNotFound
 import com.angorasix.projects.management.core.application.ProjectsManagementService
@@ -48,7 +49,7 @@ class ProjectsManagementHandler(
      * @return the `ServerResponse`
      */
     suspend fun listProjectManagements(request: ServerRequest): ServerResponse {
-        val requestingContributor = request.attributes()[apiConfigs.headers.contributor]
+        val requestingContributor = request.attributes()[AngoraSixInfrastructure.REQUEST_ATTRIBUTE_CONTRIBUTOR_KEY]
         return service.findProjectManagements(request.queryParams().toQueryFilter()).map {
             it.convertToDto(requestingContributor as? SimpleContributor, apiConfigs, request)
         }.let {
@@ -64,7 +65,7 @@ class ProjectsManagementHandler(
      * @return the `ServerResponse`
      */
     suspend fun getProjectManagement(request: ServerRequest): ServerResponse {
-        val requestingContributor = request.attributes()[apiConfigs.headers.contributor]
+        val requestingContributor = request.attributes()[AngoraSixInfrastructure.REQUEST_ATTRIBUTE_CONTRIBUTOR_KEY]
         val projectManagementId = request.pathVariable("id")
         service.findSingleProjectManagement(projectManagementId)?.let {
             val outputProjectManagement =
@@ -89,7 +90,7 @@ class ProjectsManagementHandler(
      */
     suspend fun getProjectManagementByProjectId(request: ServerRequest): ServerResponse {
         val simpleContributor =
-            request.attributes()[apiConfigs.headers.contributor] as? SimpleContributor
+            request.attributes()[AngoraSixInfrastructure.REQUEST_ATTRIBUTE_CONTRIBUTOR_KEY] as? SimpleContributor
         val projectId = request.pathVariable("projectId")
         service.findSingleProjectManagementByProjectId(projectId)?.let {
             val outputProjectManagement =
@@ -116,11 +117,11 @@ class ProjectsManagementHandler(
      * @return the `ServerResponse`
      */
     suspend fun createProjectManagement(request: ServerRequest): ServerResponse {
-        val requestingContributor = request.attributes()[apiConfigs.headers.contributor]
+        val requestingContributor = request.attributes()[AngoraSixInfrastructure.REQUEST_ATTRIBUTE_CONTRIBUTOR_KEY]
         return if (requestingContributor is SimpleContributor) {
             val project = try {
                 request.awaitBody<ProjectManagementDto>()
-                    .convertToDomain()
+                    .convertToDomain(setOf(SimpleContributor(requestingContributor.contributorId, emptySet())))
             } catch (e: IllegalArgumentException) {
                 return resolveBadRequest(
                     e.message ?: "Incorrect Project Management body",
@@ -145,12 +146,12 @@ class ProjectsManagementHandler(
      * @return the `ServerResponse`
      */
     suspend fun createProjectManagementByProjectId(request: ServerRequest): ServerResponse {
-        val requestingContributor = request.attributes()[apiConfigs.headers.contributor]
+        val requestingContributor = request.attributes()[AngoraSixInfrastructure.REQUEST_ATTRIBUTE_CONTRIBUTOR_KEY]
         val projectId = request.pathVariable("projectId")
         return if (requestingContributor is SimpleContributor) {
             val project = try {
                 request.awaitBody<ProjectManagementDto>()
-                    .convertToDomain(projectId)
+                    .convertToDomain(setOf(SimpleContributor(requestingContributor.contributorId, emptySet())), projectId)
             } catch (e: IllegalArgumentException) {
                 return resolveBadRequest(
                     e.message ?: "Incorrect Project Management body",
@@ -175,11 +176,11 @@ class ProjectsManagementHandler(
      * @return the `ServerResponse`
      */
     suspend fun updateProjectManagement(request: ServerRequest): ServerResponse {
-        val requestingContributor = request.attributes()[apiConfigs.headers.contributor]
+        val requestingContributor = request.attributes()[AngoraSixInfrastructure.REQUEST_ATTRIBUTE_CONTRIBUTOR_KEY]
         val projectId = request.pathVariable("id")
         val updateProjectManagementData = try {
             request.awaitBody<ProjectManagementDto>()
-                .let { it.convertToDomain() }
+                .let { it.convertToDomain(it.admins ?: emptySet()) }
         } catch (e: IllegalArgumentException) {
             return resolveBadRequest(
                 e.message ?: "Incorrect Project Management body",
@@ -199,7 +200,7 @@ class ProjectsManagementHandler(
 }
 
 private fun ProjectManagement.convertToDto(): ProjectManagementDto =
-    ProjectManagementDto(projectId, constitution.convertToDto(), status, id)
+    ProjectManagementDto(projectId, admins, constitution.convertToDto(), status, id)
 
 private fun ProjectManagement.convertToDto(
     simpleContributor: SimpleContributor?,
@@ -208,13 +209,14 @@ private fun ProjectManagement.convertToDto(
 ): ProjectManagementDto =
     convertToDto().resolveHypermedia(simpleContributor, apiConfigs, request)
 
-private fun ProjectManagementDto.convertToDomain(paramProjectId: String? = null): ProjectManagement {
+private fun ProjectManagementDto.convertToDomain(admins: Set<SimpleContributor>, paramProjectId: String? = null): ProjectManagement {
     if (projectId != null && paramProjectId != null && projectId != paramProjectId) throw IllegalArgumentException(
         "Mismatching projectId parameters",
     )
     val domainProjectId = paramProjectId ?: projectId
     return ProjectManagement(
         domainProjectId ?: throw IllegalArgumentException("ProjectManagement projectId expected"),
+            admins,
         constitution?.convertToDomain()
             ?: throw IllegalArgumentException("ProjectManagement constitution expected"),
         status ?: throw IllegalArgumentException("ProjectManagement status expected"),
@@ -267,20 +269,21 @@ private fun ProjectManagementDto.resolveHypermedia(
     add(getByProjectIdAffordanceLink)
 
     // edit ProjectManagement
-    if (simpleContributor != null) {
-        // @todo check if admin
-        val editProjectManagementRoute = apiConfigs.routes.updateProjectManagement
-        val editProjectManagementLink =
-            Link.of(
-                uriBuilder(request).path(editProjectManagementRoute.resolvePath())
-                    .build().toUriString(),
-            ).withTitle(editProjectManagementRoute.name)
-                .withName(editProjectManagementRoute.name)
-                .withRel(editProjectManagementRoute.name).expand(id)
-        val editProjectManagementAffordanceLink =
-            Affordances.of(editProjectManagementLink).afford(HttpMethod.PUT)
-                .withName(editProjectManagementRoute.name).toLink()
-        add(editProjectManagementAffordanceLink)
+    if (simpleContributor != null && admins != null) {
+        if (admins?.map { it.contributorId }?.contains(simpleContributor.contributorId) == true) {
+            val editProjectManagementRoute = apiConfigs.routes.updateProjectManagement
+            val editProjectManagementLink =
+                    Link.of(
+                            uriBuilder(request).path(editProjectManagementRoute.resolvePath())
+                                    .build().toUriString(),
+                    ).withTitle(editProjectManagementRoute.name)
+                            .withName(editProjectManagementRoute.name)
+                            .withRel(editProjectManagementRoute.name).expand(id)
+            val editProjectManagementAffordanceLink =
+                    Affordances.of(editProjectManagementLink).afford(HttpMethod.PUT)
+                            .withName(editProjectManagementRoute.name).toLink()
+            add(editProjectManagementAffordanceLink)
+        }
     }
     return this
 }
@@ -307,8 +310,7 @@ private fun resolveCreateByProjectIdLink(
 
     // create
     val createRoute = apiConfigs.routes.createProjectManagementByProjectId
-    if (simpleContributor != null) {
-        // @todo check if admin
+    if (simpleContributor != null && simpleContributor.isAdminHint == true) {
         val createLink =
             Link.of(uriBuilder(request).path(createRoute.resolvePath()).build().toUriString())
                 .withRel(createRoute.name).expand(projectId)
