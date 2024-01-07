@@ -197,6 +197,7 @@ class ProjectsManagementHandlerUnitTest {
                 service.updateProjectManagement(
                     "id1",
                     ofType(ProjectManagement::class),
+                    mockedSimpleContributor
                 )
             } returns mockedProjectManagement
 
@@ -213,6 +214,7 @@ class ProjectsManagementHandlerUnitTest {
                 service.updateProjectManagement(
                     "id1",
                     ofType(ProjectManagement::class),
+                    mockedSimpleContributor
                 )
             }
         }

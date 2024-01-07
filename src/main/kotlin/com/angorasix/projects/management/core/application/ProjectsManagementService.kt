@@ -1,5 +1,6 @@
 package com.angorasix.projects.management.core.application
 
+import com.angorasix.commons.domain.SimpleContributor
 import com.angorasix.projects.management.core.domain.management.ProjectManagement
 import com.angorasix.projects.management.core.domain.management.ProjectManagementRepository
 import com.angorasix.projects.management.core.infrastructure.queryfilters.ListProjectsManagementFilter
@@ -27,10 +28,17 @@ class ProjectsManagementService(private val repository: ProjectManagementReposit
     suspend fun updateProjectManagement(
         id: String,
         updateData: ProjectManagement,
+        simpleContributor: SimpleContributor
     ): ProjectManagement? {
-        val projectManagementToUpdate =
-            repository.findById(id).takeIf { it?.projectId == updateData.projectId }
-                ?: throw IllegalArgumentException("Provided 'projectId' doesn't match the Project Management one")
+        val projectManagementToUpdate = repository.findByIdForContributor(
+            ListProjectsManagementFilter(
+                    listOf(updateData.projectId),
+                    listOf(simpleContributor.contributorId),
+                    listOf(id),
+            ),
+            simpleContributor,
+        )?: throw IllegalArgumentException("Failed to query any Project Management")
+
         return projectManagementToUpdate.updateWithData(updateData).let { repository.save(it) }
     }
 

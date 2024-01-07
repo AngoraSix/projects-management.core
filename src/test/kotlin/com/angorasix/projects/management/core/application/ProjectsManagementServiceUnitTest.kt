@@ -1,5 +1,6 @@
 package com.angorasix.projects.management.core.application
 
+import com.angorasix.commons.domain.SimpleContributor
 import com.angorasix.projects.management.core.domain.management.ManagementStatus
 import com.angorasix.projects.management.core.domain.management.ProjectManagement
 import com.angorasix.projects.management.core.domain.management.ProjectManagementRepository
@@ -106,37 +107,61 @@ class ProjectsManagementServiceUnitTest {
     fun `when update project management - then service retrieve saved project management`() =
         runTest {
             val mockedExistingProjectManagement = mockk<ProjectManagement>()
+
             every {
                 mockedExistingProjectManagement.setProperty(ProjectManagement::status.name) value ManagementStatus.OPERATIONAL
             } just Runs
-            every {
-                mockedExistingProjectManagement.projectId
-            } returns "mockedProjectId"
+
+
+            val mockedSimpleContributor = SimpleContributor("1", emptySet())
+
             val mockedUpdateProjectManagement = ProjectManagement(
                 "mockedProjectId",
-                emptySet(),
+                setOf(mockedSimpleContributor),
                 mockConstitution(),
                 ManagementStatus.OPERATIONAL,
             )
             val savedProjectManagement = ProjectManagement(
                 "savedMockedProjectId",
-                emptySet(),
+                setOf(mockedSimpleContributor),
                 mockConstitution(),
                 ManagementStatus.STARTUP,
             )
-            coEvery { repository.findById("id1") } returns mockedExistingProjectManagement
+
+            coEvery {
+                repository.findByIdForContributor(
+                        ListProjectsManagementFilter(
+                                listOf("mockedProjectId"),
+                                listOf("1"),
+                                listOf("id1")
+                        ),
+                        mockedSimpleContributor,
+                )
+            } returns mockedExistingProjectManagement
+
             coEvery { repository.save(any()) } returns savedProjectManagement
+
             val outputProjectManagement =
-                service.updateProjectManagement("id1", mockedUpdateProjectManagement)
+                service.updateProjectManagement("id1", mockedUpdateProjectManagement, mockedSimpleContributor)
+
             assertThat(outputProjectManagement).isSameAs(savedProjectManagement)
+
             coVerifyAll {
-                repository.findById("id1")
+                repository.findByIdForContributor(
+                        ListProjectsManagementFilter(
+                                listOf("mockedProjectId"),
+                                listOf("1"),
+                                listOf("id1")
+                        ),
+                        mockedSimpleContributor,
+                )
                 repository.save(any())
             }
+
             verifyAll {
                 mockedExistingProjectManagement.setProperty(ProjectManagement::status.name) value ManagementStatus.OPERATIONAL
-                mockedExistingProjectManagement.projectId
             }
+
             confirmVerified(mockedExistingProjectManagement, repository)
         }
 

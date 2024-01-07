@@ -187,7 +187,11 @@ class ProjectsManagementHandler(
                 "Project Management",
             )
         }
-        return service.updateProjectManagement(projectId, updateProjectManagementData)?.let {
+        return service.updateProjectManagement(
+                projectId,
+                updateProjectManagementData,
+                requestingContributor as SimpleContributor
+        )?.let {
             val outputProjectManagement =
                 it.convertToDto(
                     requestingContributor as? SimpleContributor,
