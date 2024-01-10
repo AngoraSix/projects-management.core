@@ -117,26 +117,31 @@ class ProjectsManagementHandler(
      * @return the `ServerResponse`
      */
     suspend fun createProjectManagement(request: ServerRequest): ServerResponse {
+
         val requestingContributor = request.attributes()[AngoraSixInfrastructure.REQUEST_ATTRIBUTE_CONTRIBUTOR_KEY]
-        return if (requestingContributor is SimpleContributor) {
-            val project = try {
-                request.awaitBody<ProjectManagementDto>()
+
+        if (requestingContributor !is SimpleContributor) {
+            return resolveBadRequest("Invalid Contributor Token", "Contributor Token")
+        }
+
+        val project = try {
+            request.awaitBody<ProjectManagementDto>()
                     .convertToDomain(setOf(SimpleContributor(requestingContributor.contributorId, emptySet())))
-            } catch (e: IllegalArgumentException) {
-                return resolveBadRequest(
+        } catch (e: IllegalArgumentException) {
+            return resolveBadRequest(
                     e.message ?: "Incorrect Project Management body",
                     "Project Management",
-                )
-            }
-            val outputProjectManagement = service.createProjectManagement(project)
-                .convertToDto(requestingContributor, apiConfigs, request)
-            val selfLink =
-                outputProjectManagement.links.getRequiredLink(IanaLinkRelations.SELF).href
-            return created(URI.create(selfLink)).contentType(MediaTypes.HAL_FORMS_JSON)
-                .bodyValueAndAwait(outputProjectManagement)
-        } else {
-            return resolveBadRequest("Invalid Contributor Header", "Contributor Header")
+            )
         }
+
+        val outputProjectManagement = service.createProjectManagement(project)
+                .convertToDto(requestingContributor, apiConfigs, request)
+
+        val selfLink =
+                outputProjectManagement.links.getRequiredLink(IanaLinkRelations.SELF).href
+
+        return created(URI.create(selfLink)).contentType(MediaTypes.HAL_FORMS_JSON)
+                .bodyValueAndAwait(outputProjectManagement)
     }
 
     /**
@@ -146,27 +151,34 @@ class ProjectsManagementHandler(
      * @return the `ServerResponse`
      */
     suspend fun createProjectManagementByProjectId(request: ServerRequest): ServerResponse {
+
         val requestingContributor = request.attributes()[AngoraSixInfrastructure.REQUEST_ATTRIBUTE_CONTRIBUTOR_KEY]
+
+        if (requestingContributor !is SimpleContributor) {
+            return resolveBadRequest("Invalid Contributor Token", "Contributor Token")
+        }
+
         val projectId = request.pathVariable("projectId")
-        return if (requestingContributor is SimpleContributor) {
-            val project = try {
-                request.awaitBody<ProjectManagementDto>()
+
+        val project = try {
+            request.awaitBody<ProjectManagementDto>()
                     .convertToDomain(setOf(SimpleContributor(requestingContributor.contributorId, emptySet())), projectId)
-            } catch (e: IllegalArgumentException) {
-                return resolveBadRequest(
+        } catch (e: IllegalArgumentException) {
+            return resolveBadRequest(
                     e.message ?: "Incorrect Project Management body",
                     "Project Management",
-                )
-            }
-            val outputProjectManagement = service.createProjectManagement(project)
-                .convertToDto(requestingContributor, apiConfigs, request)
-            val selfLink =
-                outputProjectManagement.links.getRequiredLink(IanaLinkRelations.SELF).href
-            created(URI.create(selfLink)).contentType(MediaTypes.HAL_FORMS_JSON)
-                .bodyValueAndAwait(outputProjectManagement)
-        } else {
-            resolveBadRequest("Invalid Contributor Header", "Contributor Header")
+            )
         }
+
+        val outputProjectManagement = service.createProjectManagement(project)
+                .convertToDto(requestingContributor, apiConfigs, request)
+
+        val selfLink =
+                outputProjectManagement.links.getRequiredLink(IanaLinkRelations.SELF).href
+
+        return created(URI.create(selfLink)).contentType(MediaTypes.HAL_FORMS_JSON)
+                .bodyValueAndAwait(outputProjectManagement)
+
     }
 
     /**
@@ -177,29 +189,38 @@ class ProjectsManagementHandler(
      */
     suspend fun updateProjectManagement(request: ServerRequest): ServerResponse {
         val requestingContributor = request.attributes()[AngoraSixInfrastructure.REQUEST_ATTRIBUTE_CONTRIBUTOR_KEY]
+
+        if (requestingContributor !is SimpleContributor) {
+            return resolveBadRequest("Invalid Contributor Token", "Contributor Token")
+        }
+
         val projectId = request.pathVariable("id")
+
         val updateProjectManagementData = try {
             request.awaitBody<ProjectManagementDto>()
-                .let { it.convertToDomain(it.admins ?: emptySet()) }
+                    .let { it.convertToDomain(it.admins ?: emptySet()) }
         } catch (e: IllegalArgumentException) {
             return resolveBadRequest(
-                e.message ?: "Incorrect Project Management body",
-                "Project Management",
+                    e.message ?: "Incorrect Project Management body",
+                    "Project Management",
             )
         }
+
         return service.updateProjectManagement(
                 projectId,
                 updateProjectManagementData,
-                requestingContributor as SimpleContributor
+                requestingContributor,
         )?.let {
             val outputProjectManagement =
-                it.convertToDto(
-                    requestingContributor as? SimpleContributor,
-                    apiConfigs,
-                    request,
-                )
+                    it.convertToDto(
+                            requestingContributor,
+                            apiConfigs,
+                            request,
+                    )
+
             ok().contentType(MediaTypes.HAL_FORMS_JSON).bodyValueAndAwait(outputProjectManagement)
-        } ?: resolveNotFound("Can't update this project management", "Project Management")
+        } ?:
+            resolveNotFound("Can't update this project management", "Project Management")
     }
 }
 
