@@ -149,7 +149,7 @@ class ProjectsManagementHandlerUnitTest {
             val responseBody = response.entity()
             assertThat(responseBody.status).isEqualTo(400)
             var properties = responseBody.properties as Map<String, Any>?
-            assertThat(properties?.get("errorCode") as String).isEqualTo("CONTRIBUTOR_HEADER_INVALID")
+            assertThat(properties?.get("errorCode") as String).isEqualTo("CONTRIBUTOR_TOKEN_INVALID")
             Unit
         }
 
@@ -197,6 +197,7 @@ class ProjectsManagementHandlerUnitTest {
                 service.updateProjectManagement(
                     "id1",
                     ofType(ProjectManagement::class),
+                    mockedSimpleContributor
                 )
             } returns mockedProjectManagement
 
@@ -213,6 +214,7 @@ class ProjectsManagementHandlerUnitTest {
                 service.updateProjectManagement(
                     "id1",
                     ofType(ProjectManagement::class),
+                    mockedSimpleContributor
                 )
             }
         }

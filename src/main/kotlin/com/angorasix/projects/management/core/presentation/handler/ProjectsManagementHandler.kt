@@ -89,13 +89,13 @@ class ProjectsManagementHandler(
      * @return the `ServerResponse`
      */
     suspend fun getProjectManagementByProjectId(request: ServerRequest): ServerResponse {
-        val simpleContributor =
+        val requestingContributor =
             request.attributes()[AngoraSixInfrastructure.REQUEST_ATTRIBUTE_CONTRIBUTOR_KEY] as? SimpleContributor
         val projectId = request.pathVariable("projectId")
         service.findSingleProjectManagementByProjectId(projectId)?.let {
             val outputProjectManagement =
                 it.convertToDto(
-                    simpleContributor,
+                    requestingContributor,
                     apiConfigs,
                     request,
                 )
@@ -106,7 +106,7 @@ class ProjectsManagementHandler(
         return resolveNotFound(
             "Can't find Project Management using projectId",
             "Project Management",
-            resolveCreateByProjectIdLink(projectId, simpleContributor, apiConfigs, request),
+            resolveCreateByProjectIdLink(projectId, requestingContributor, apiConfigs, request),
         )
     }
 
@@ -117,26 +117,31 @@ class ProjectsManagementHandler(
      * @return the `ServerResponse`
      */
     suspend fun createProjectManagement(request: ServerRequest): ServerResponse {
+
         val requestingContributor = request.attributes()[AngoraSixInfrastructure.REQUEST_ATTRIBUTE_CONTRIBUTOR_KEY]
-        return if (requestingContributor is SimpleContributor) {
-            val project = try {
-                request.awaitBody<ProjectManagementDto>()
+
+        if (requestingContributor !is SimpleContributor) {
+            return resolveBadRequest("Invalid Contributor Token", "Contributor Token")
+        }
+
+        val project = try {
+            request.awaitBody<ProjectManagementDto>()
                     .convertToDomain(setOf(SimpleContributor(requestingContributor.contributorId, emptySet())))
-            } catch (e: IllegalArgumentException) {
-                return resolveBadRequest(
+        } catch (e: IllegalArgumentException) {
+            return resolveBadRequest(
                     e.message ?: "Incorrect Project Management body",
                     "Project Management",
-                )
-            }
-            val outputProjectManagement = service.createProjectManagement(project)
-                .convertToDto(requestingContributor, apiConfigs, request)
-            val selfLink =
-                outputProjectManagement.links.getRequiredLink(IanaLinkRelations.SELF).href
-            return created(URI.create(selfLink)).contentType(MediaTypes.HAL_FORMS_JSON)
-                .bodyValueAndAwait(outputProjectManagement)
-        } else {
-            return resolveBadRequest("Invalid Contributor Header", "Contributor Header")
+            )
         }
+
+        val outputProjectManagement = service.createProjectManagement(project)
+                .convertToDto(requestingContributor, apiConfigs, request)
+
+        val selfLink =
+                outputProjectManagement.links.getRequiredLink(IanaLinkRelations.SELF).href
+
+        return created(URI.create(selfLink)).contentType(MediaTypes.HAL_FORMS_JSON)
+                .bodyValueAndAwait(outputProjectManagement)
     }
 
     /**
@@ -146,27 +151,34 @@ class ProjectsManagementHandler(
      * @return the `ServerResponse`
      */
     suspend fun createProjectManagementByProjectId(request: ServerRequest): ServerResponse {
+
         val requestingContributor = request.attributes()[AngoraSixInfrastructure.REQUEST_ATTRIBUTE_CONTRIBUTOR_KEY]
+
+        if (requestingContributor !is SimpleContributor) {
+            return resolveBadRequest("Invalid Contributor Token", "Contributor Token")
+        }
+
         val projectId = request.pathVariable("projectId")
-        return if (requestingContributor is SimpleContributor) {
-            val project = try {
-                request.awaitBody<ProjectManagementDto>()
+
+        val project = try {
+            request.awaitBody<ProjectManagementDto>()
                     .convertToDomain(setOf(SimpleContributor(requestingContributor.contributorId, emptySet())), projectId)
-            } catch (e: IllegalArgumentException) {
-                return resolveBadRequest(
+        } catch (e: IllegalArgumentException) {
+            return resolveBadRequest(
                     e.message ?: "Incorrect Project Management body",
                     "Project Management",
-                )
-            }
-            val outputProjectManagement = service.createProjectManagement(project)
-                .convertToDto(requestingContributor, apiConfigs, request)
-            val selfLink =
-                outputProjectManagement.links.getRequiredLink(IanaLinkRelations.SELF).href
-            created(URI.create(selfLink)).contentType(MediaTypes.HAL_FORMS_JSON)
-                .bodyValueAndAwait(outputProjectManagement)
-        } else {
-            resolveBadRequest("Invalid Contributor Header", "Contributor Header")
+            )
         }
+
+        val outputProjectManagement = service.createProjectManagement(project)
+                .convertToDto(requestingContributor, apiConfigs, request)
+
+        val selfLink =
+                outputProjectManagement.links.getRequiredLink(IanaLinkRelations.SELF).href
+
+        return created(URI.create(selfLink)).contentType(MediaTypes.HAL_FORMS_JSON)
+                .bodyValueAndAwait(outputProjectManagement)
+
     }
 
     /**
@@ -177,25 +189,38 @@ class ProjectsManagementHandler(
      */
     suspend fun updateProjectManagement(request: ServerRequest): ServerResponse {
         val requestingContributor = request.attributes()[AngoraSixInfrastructure.REQUEST_ATTRIBUTE_CONTRIBUTOR_KEY]
+
+        if (requestingContributor !is SimpleContributor) {
+            return resolveBadRequest("Invalid Contributor Token", "Contributor Token")
+        }
+
         val projectId = request.pathVariable("id")
+
         val updateProjectManagementData = try {
             request.awaitBody<ProjectManagementDto>()
-                .let { it.convertToDomain(it.admins ?: emptySet()) }
+                    .let { it.convertToDomain(it.admins ?: emptySet()) }
         } catch (e: IllegalArgumentException) {
             return resolveBadRequest(
-                e.message ?: "Incorrect Project Management body",
-                "Project Management",
+                    e.message ?: "Incorrect Project Management body",
+                    "Project Management",
             )
         }
-        return service.updateProjectManagement(projectId, updateProjectManagementData)?.let {
+
+        return service.updateProjectManagement(
+                projectId,
+                updateProjectManagementData,
+                requestingContributor,
+        )?.let {
             val outputProjectManagement =
-                it.convertToDto(
-                    requestingContributor as? SimpleContributor,
-                    apiConfigs,
-                    request,
-                )
+                    it.convertToDto(
+                            requestingContributor,
+                            apiConfigs,
+                            request,
+                    )
+
             ok().contentType(MediaTypes.HAL_FORMS_JSON).bodyValueAndAwait(outputProjectManagement)
-        } ?: resolveNotFound("Can't update this project management", "Project Management")
+        } ?:
+            resolveNotFound("Can't update this project management", "Project Management")
     }
 }
 
@@ -203,11 +228,11 @@ private fun ProjectManagement.convertToDto(): ProjectManagementDto =
     ProjectManagementDto(projectId, admins, constitution.convertToDto(), status, id)
 
 private fun ProjectManagement.convertToDto(
-    simpleContributor: SimpleContributor?,
-    apiConfigs: ApiConfigs,
-    request: ServerRequest,
+        requestingContributor: SimpleContributor?,
+        apiConfigs: ApiConfigs,
+        request: ServerRequest,
 ): ProjectManagementDto =
-    convertToDto().resolveHypermedia(simpleContributor, apiConfigs, request)
+    convertToDto().resolveHypermedia(requestingContributor, apiConfigs, request)
 
 private fun ProjectManagementDto.convertToDomain(admins: Set<SimpleContributor>, paramProjectId: String? = null): ProjectManagement {
     if (projectId != null && paramProjectId != null && projectId != paramProjectId) throw IllegalArgumentException(
@@ -242,9 +267,9 @@ private fun BylawDto.convertToDomain(): Bylaw<Any> {
 }
 
 private fun ProjectManagementDto.resolveHypermedia(
-    simpleContributor: SimpleContributor?,
-    apiConfigs: ApiConfigs,
-    request: ServerRequest,
+        requestingContributor: SimpleContributor?,
+        apiConfigs: ApiConfigs,
+        request: ServerRequest,
 ): ProjectManagementDto {
     val getSingleRoute = apiConfigs.routes.getProjectManagement
     // self
@@ -269,8 +294,8 @@ private fun ProjectManagementDto.resolveHypermedia(
     add(getByProjectIdAffordanceLink)
 
     // edit ProjectManagement
-    if (simpleContributor != null && admins != null) {
-        if (admins?.map { it.contributorId }?.contains(simpleContributor.contributorId) == true) {
+    if (requestingContributor != null && admins != null) {
+        if (admins?.map { it.contributorId }?.contains(requestingContributor.contributorId) == true) {
             val editProjectManagementRoute = apiConfigs.routes.updateProjectManagement
             val editProjectManagementLink =
                     Link.of(
@@ -289,10 +314,10 @@ private fun ProjectManagementDto.resolveHypermedia(
 }
 
 private fun resolveCreateByProjectIdLink(
-    projectId: String,
-    simpleContributor: SimpleContributor?,
-    apiConfigs: ApiConfigs,
-    request: ServerRequest,
+        projectId: String,
+        requestingContributor: SimpleContributor?,
+        apiConfigs: ApiConfigs,
+        request: ServerRequest,
 ): Links {
     val getSingleRoute = apiConfigs.routes.getProjectManagement
     // self (by projectId
@@ -310,7 +335,7 @@ private fun resolveCreateByProjectIdLink(
 
     // create
     val createRoute = apiConfigs.routes.createProjectManagementByProjectId
-    if (simpleContributor != null && simpleContributor.isAdminHint == true) {
+    if (requestingContributor != null && requestingContributor.isAdminHint == true) {
         val createLink =
             Link.of(uriBuilder(request).path(createRoute.resolvePath()).build().toUriString())
                 .withRel(createRoute.name).expand(projectId)
