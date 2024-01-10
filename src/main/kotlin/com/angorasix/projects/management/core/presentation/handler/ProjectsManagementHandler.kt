@@ -89,13 +89,13 @@ class ProjectsManagementHandler(
      * @return the `ServerResponse`
      */
     suspend fun getProjectManagementByProjectId(request: ServerRequest): ServerResponse {
-        val simpleContributor =
+        val requestingContributor =
             request.attributes()[AngoraSixInfrastructure.REQUEST_ATTRIBUTE_CONTRIBUTOR_KEY] as? SimpleContributor
         val projectId = request.pathVariable("projectId")
         service.findSingleProjectManagementByProjectId(projectId)?.let {
             val outputProjectManagement =
                 it.convertToDto(
-                    simpleContributor,
+                    requestingContributor,
                     apiConfigs,
                     request,
                 )
@@ -106,7 +106,7 @@ class ProjectsManagementHandler(
         return resolveNotFound(
             "Can't find Project Management using projectId",
             "Project Management",
-            resolveCreateByProjectIdLink(projectId, simpleContributor, apiConfigs, request),
+            resolveCreateByProjectIdLink(projectId, requestingContributor, apiConfigs, request),
         )
     }
 
@@ -207,11 +207,11 @@ private fun ProjectManagement.convertToDto(): ProjectManagementDto =
     ProjectManagementDto(projectId, admins, constitution.convertToDto(), status, id)
 
 private fun ProjectManagement.convertToDto(
-    simpleContributor: SimpleContributor?,
-    apiConfigs: ApiConfigs,
-    request: ServerRequest,
+        requestingContributor: SimpleContributor?,
+        apiConfigs: ApiConfigs,
+        request: ServerRequest,
 ): ProjectManagementDto =
-    convertToDto().resolveHypermedia(simpleContributor, apiConfigs, request)
+    convertToDto().resolveHypermedia(requestingContributor, apiConfigs, request)
 
 private fun ProjectManagementDto.convertToDomain(admins: Set<SimpleContributor>, paramProjectId: String? = null): ProjectManagement {
     if (projectId != null && paramProjectId != null && projectId != paramProjectId) throw IllegalArgumentException(
@@ -246,9 +246,9 @@ private fun BylawDto.convertToDomain(): Bylaw<Any> {
 }
 
 private fun ProjectManagementDto.resolveHypermedia(
-    simpleContributor: SimpleContributor?,
-    apiConfigs: ApiConfigs,
-    request: ServerRequest,
+        requestingContributor: SimpleContributor?,
+        apiConfigs: ApiConfigs,
+        request: ServerRequest,
 ): ProjectManagementDto {
     val getSingleRoute = apiConfigs.routes.getProjectManagement
     // self
@@ -273,8 +273,8 @@ private fun ProjectManagementDto.resolveHypermedia(
     add(getByProjectIdAffordanceLink)
 
     // edit ProjectManagement
-    if (simpleContributor != null && admins != null) {
-        if (admins?.map { it.contributorId }?.contains(simpleContributor.contributorId) == true) {
+    if (requestingContributor != null && admins != null) {
+        if (admins?.map { it.contributorId }?.contains(requestingContributor.contributorId) == true) {
             val editProjectManagementRoute = apiConfigs.routes.updateProjectManagement
             val editProjectManagementLink =
                     Link.of(
@@ -293,10 +293,10 @@ private fun ProjectManagementDto.resolveHypermedia(
 }
 
 private fun resolveCreateByProjectIdLink(
-    projectId: String,
-    simpleContributor: SimpleContributor?,
-    apiConfigs: ApiConfigs,
-    request: ServerRequest,
+        projectId: String,
+        requestingContributor: SimpleContributor?,
+        apiConfigs: ApiConfigs,
+        request: ServerRequest,
 ): Links {
     val getSingleRoute = apiConfigs.routes.getProjectManagement
     // self (by projectId
@@ -314,7 +314,7 @@ private fun resolveCreateByProjectIdLink(
 
     // create
     val createRoute = apiConfigs.routes.createProjectManagementByProjectId
-    if (simpleContributor != null && simpleContributor.isAdminHint == true) {
+    if (requestingContributor != null && requestingContributor.isAdminHint == true) {
         val createLink =
             Link.of(uriBuilder(request).path(createRoute.resolvePath()).build().toUriString())
                 .withRel(createRoute.name).expand(projectId)

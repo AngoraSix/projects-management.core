@@ -24,28 +24,20 @@ class ProjectManagementFilterRepositoryImpl(val mongoOps: ReactiveMongoOperation
     }
 
     override suspend fun findByIdForContributor(filter: ListProjectsManagementFilter,
-                                                simpleContributor: SimpleContributor?): ProjectManagement? {
-        return mongoOps.find(filter.toQuery(simpleContributor), ProjectManagement::class.java)
+                                                requestingContributor: SimpleContributor?): ProjectManagement? {
+        return mongoOps.find(filter.toQuery(requestingContributor), ProjectManagement::class.java)
                 .awaitFirstOrNull()
     }
 }
 
-private fun ListProjectsManagementFilter.toQuery(simpleContributor: SimpleContributor? = null): Query {
+private fun ListProjectsManagementFilter.toQuery(requestingContributor: SimpleContributor? = null): Query {
     val query = Query()
-
-    val requestingOthers = adminId == null || !adminId.contains(simpleContributor?.contributorId)
-    val requestingOwn =
-            simpleContributor != null && (adminId.isNullOrEmpty() || adminId.contains(simpleContributor.contributorId))
 
     ids?.let { query.addCriteria(where("_id").`in`(it)) }
     projectIds?.let { query.addCriteria(where("projectId").`in`(it)) }
 
-    if (requestingOthers) {
-        return query
-    }
-
-    if (requestingOwn) {
-        query.addCriteria(where("admins").elemMatch(where("contributorId").`is`(simpleContributor?.contributorId)))
+    if (requestingContributor?.contributorId != null && adminId != null) {
+        query.addCriteria(where("admins.contributorId").`in`(adminId + requestingContributor.contributorId))
     }
 
     return query

@@ -26,17 +26,17 @@ class ProjectsManagementService(private val repository: ProjectManagementReposit
         repository.save(projectManagement)
 
     suspend fun updateProjectManagement(
-        id: String,
-        updateData: ProjectManagement,
-        simpleContributor: SimpleContributor
-    ): ProjectManagement? {
+            id: String,
+            updateData: ProjectManagement,
+            requestingContributor: SimpleContributor
+    ): ProjectManagement {
         val projectManagementToUpdate = repository.findByIdForContributor(
             ListProjectsManagementFilter(
                     listOf(updateData.projectId),
-                    listOf(simpleContributor.contributorId),
+                    setOf(requestingContributor.contributorId),
                     listOf(id),
             ),
-            simpleContributor,
+            requestingContributor,
         )?: throw IllegalArgumentException("Failed to query any Project Management")
 
         return projectManagementToUpdate.updateWithData(updateData).let { repository.save(it) }

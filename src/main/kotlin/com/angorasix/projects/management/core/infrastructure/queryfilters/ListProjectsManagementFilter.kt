@@ -11,6 +11,6 @@ import com.angorasix.commons.domain.SimpleContributor
  */
 data class ListProjectsManagementFilter(
     val projectIds: Collection<String>? = null,
-    val adminId: Collection<String>? = null,
+    val adminId: Set<String>? = null,
     val ids: Collection<String>? = null, // mgmt id
 )

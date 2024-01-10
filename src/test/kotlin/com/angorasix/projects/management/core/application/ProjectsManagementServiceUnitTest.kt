@@ -132,7 +132,7 @@ class ProjectsManagementServiceUnitTest {
                 repository.findByIdForContributor(
                         ListProjectsManagementFilter(
                                 listOf("mockedProjectId"),
-                                listOf("1"),
+                                setOf("1"),
                                 listOf("id1")
                         ),
                         mockedSimpleContributor,
@@ -150,7 +150,7 @@ class ProjectsManagementServiceUnitTest {
                 repository.findByIdForContributor(
                         ListProjectsManagementFilter(
                                 listOf("mockedProjectId"),
-                                listOf("1"),
+                                setOf("1"),
                                 listOf("id1")
                         ),
                         mockedSimpleContributor,
