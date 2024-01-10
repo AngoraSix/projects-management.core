@@ -36,7 +36,7 @@ private fun ListProjectsManagementFilter.toQuery(requestingContributor: SimpleCo
     ids?.let { query.addCriteria(where("_id").`in`(it)) }
     projectIds?.let { query.addCriteria(where("projectId").`in`(it)) }
 
-    if (requestingContributor?.contributorId != null && adminId != null) {
+    if (adminId != null && requestingContributor != null) {
         query.addCriteria(where("admins.contributorId").`in`(adminId + requestingContributor.contributorId))
     }
 
