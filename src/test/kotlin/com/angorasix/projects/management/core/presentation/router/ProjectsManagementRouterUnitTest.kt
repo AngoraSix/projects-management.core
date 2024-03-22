@@ -1,11 +1,7 @@
 package com.angorasix.projects.management.core.presentation.router
 
 import com.angorasix.projects.management.core.domain.management.ManagementStatus
-import com.angorasix.projects.management.core.infrastructure.config.configurationproperty.api.ApiConfigs
-import com.angorasix.projects.management.core.infrastructure.config.configurationproperty.api.BasePathConfigs
-import com.angorasix.projects.management.core.infrastructure.config.configurationproperty.api.HeadersConfigs
-import com.angorasix.projects.management.core.infrastructure.config.configurationproperty.api.Route
-import com.angorasix.projects.management.core.infrastructure.config.configurationproperty.api.RoutesConfigs
+import com.angorasix.projects.management.core.infrastructure.config.configurationproperty.api.*
 import com.angorasix.projects.management.core.presentation.dto.ProjectManagementDto
 import com.angorasix.projects.management.core.presentation.handler.ProjectsManagementHandler
 import com.angorasix.projects.management.core.utils.mockConstitutionDto

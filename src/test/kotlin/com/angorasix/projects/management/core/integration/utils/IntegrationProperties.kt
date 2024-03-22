@@ -1,7 +1,6 @@
 package com.angorasix.projects.management.core.integration.utils
 
 import org.springframework.boot.context.properties.ConfigurationProperties
-import org.springframework.boot.context.properties.ConstructorBinding
 
 /**
  *

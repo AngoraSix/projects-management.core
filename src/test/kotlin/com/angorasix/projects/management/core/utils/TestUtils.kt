@@ -1,11 +1,7 @@
 package com.angorasix.projects.management.core.utils
 
 import com.angorasix.commons.domain.SimpleContributor
-import com.angorasix.projects.management.core.domain.management.Bylaw
-import com.angorasix.projects.management.core.domain.management.BylawWellknownScope
-import com.angorasix.projects.management.core.domain.management.ManagementConstitution
-import com.angorasix.projects.management.core.domain.management.ManagementStatus
-import com.angorasix.projects.management.core.domain.management.ProjectManagement
+import com.angorasix.projects.management.core.domain.management.*
 import com.angorasix.projects.management.core.presentation.dto.BylawDto
 import com.angorasix.projects.management.core.presentation.dto.ManagementConstitutionDto
 import com.angorasix.projects.management.core.presentation.dto.ProjectManagementDto
@@ -17,7 +13,10 @@ import java.util.*
  *
  * @author rozagerardo
  */
-fun mockProjectManagement(modifier: String = "", admins: Set<SimpleContributor> = emptySet()): ProjectManagement =
+fun mockProjectManagement(
+    modifier: String = "",
+    admins: Set<SimpleContributor> = emptySet()
+): ProjectManagement =
     ProjectManagement(
         "mockedProjectId$modifier",
         admins,
@@ -43,7 +42,7 @@ fun mockProjectManagementDto(modifier: String = getRandomString(5)): ProjectMana
         ManagementStatus.STARTUP,
     )
 
-private fun getRandomString(length: Int) : String {
+private fun getRandomString(length: Int): String {
     val allowedChars = ('A'..'Z') + ('a'..'z') + ('0'..'9')
     return (1..length)
         .map { allowedChars.random() }
