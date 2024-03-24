@@ -1,7 +1,5 @@
 package com.angorasix.projects.management.core.infrastructure.queryfilters
 
-import com.angorasix.commons.domain.SimpleContributor
-
 /**
  * <p>
  *     Classes containing different Request Query Filters.

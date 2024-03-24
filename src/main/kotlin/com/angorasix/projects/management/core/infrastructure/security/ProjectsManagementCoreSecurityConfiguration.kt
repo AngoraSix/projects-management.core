@@ -1,4 +1,4 @@
-package com.angorasix.projects.core.infrastructure.security
+package com.angorasix.projects.management.core.infrastructure.security
 
 import org.springframework.context.annotation.Bean
 import org.springframework.http.HttpMethod

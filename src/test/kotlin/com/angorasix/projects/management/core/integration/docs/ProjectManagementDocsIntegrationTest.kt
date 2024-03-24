@@ -30,7 +30,6 @@ import org.springframework.restdocs.RestDocumentationContextProvider
 import org.springframework.restdocs.RestDocumentationExtension
 import org.springframework.restdocs.headers.HeaderDocumentation.headerWithName
 import org.springframework.restdocs.headers.HeaderDocumentation.responseHeaders
-import org.springframework.restdocs.hypermedia.HypermediaDocumentation
 import org.springframework.restdocs.hypermedia.HypermediaDocumentation.halLinks
 import org.springframework.restdocs.hypermedia.HypermediaDocumentation.linkWithRel
 import org.springframework.restdocs.hypermedia.HypermediaDocumentation.links
@@ -89,7 +88,7 @@ class ProjectManagementDocsIntegrationTest(
             .description("The current status of the Project Management"),
 
         subsectionWithPath("links").optional().description("HATEOAS links")
-            .type(JsonFieldType.ARRAY),// until we resolve and unify the list and single response links, all will be marked as optional
+            .type(JsonFieldType.ARRAY), // until we resolve and unify the list and single response links, all will be marked as optional
         subsectionWithPath("_links").optional().description("HATEOAS links")
             .type(JsonFieldType.OBJECT),
         subsectionWithPath("_templates").optional()

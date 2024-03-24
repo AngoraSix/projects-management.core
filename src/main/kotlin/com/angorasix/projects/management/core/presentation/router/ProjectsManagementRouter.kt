@@ -3,7 +3,6 @@ package com.angorasix.projects.management.core.presentation.router
 import com.angorasix.commons.reactive.presentation.filter.extractRequestingContributor
 import com.angorasix.projects.management.core.infrastructure.config.configurationproperty.api.ApiConfigs
 import com.angorasix.projects.management.core.presentation.handler.ProjectsManagementHandler
-import com.fasterxml.jackson.databind.ObjectMapper
 import org.springframework.web.reactive.function.server.RouterFunction
 import org.springframework.web.reactive.function.server.coRouter
 
@@ -14,7 +13,6 @@ import org.springframework.web.reactive.function.server.coRouter
  */
 class ProjectsManagementRouter(
     private val handler: ProjectsManagementHandler,
-    private val objectMapper: ObjectMapper,
     private val apiConfigs: ApiConfigs,
 ) {
 
@@ -28,7 +26,7 @@ class ProjectsManagementRouter(
             filter { request, next ->
                 extractRequestingContributor(
                     request,
-                    next
+                    next,
                 )
             }
             apiConfigs.routes.baseByProjectIdCrudRoute.nest {

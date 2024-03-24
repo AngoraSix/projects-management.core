@@ -17,13 +17,15 @@ import java.util.*
  *
  * @author rozagerardo
  */
-fun mockProjectManagement(modifier: String = "", admins: Set<SimpleContributor> = emptySet()): ProjectManagement =
-    ProjectManagement(
-        "mockedProjectId$modifier",
-        admins,
-        mockConstitution(),
-        ManagementStatus.STARTUP,
-    )
+fun mockProjectManagement(
+    modifier: String = "",
+    admins: Set<SimpleContributor> = emptySet(),
+): ProjectManagement = ProjectManagement(
+    "mockedProjectId$modifier",
+    admins,
+    mockConstitution(),
+    ManagementStatus.STARTUP,
+)
 
 fun mockConstitution(): ManagementConstitution = ManagementConstitution(
     listOf(
@@ -35,19 +37,16 @@ fun mockConstitution(): ManagementConstitution = ManagementConstitution(
     ),
 )
 
-fun mockProjectManagementDto(modifier: String = getRandomString(5)): ProjectManagementDto =
-    ProjectManagementDto(
-        "mockedProjectId$modifier",
-        emptySet(),
-        mockConstitutionDto(),
-        ManagementStatus.STARTUP,
-    )
+fun mockProjectManagementDto(modifier: String = getRandomString(5)): ProjectManagementDto = ProjectManagementDto(
+    "mockedProjectId$modifier",
+    emptySet(),
+    mockConstitutionDto(),
+    ManagementStatus.STARTUP,
+)
 
-private fun getRandomString(length: Int) : String {
+private fun getRandomString(length: Int): String {
     val allowedChars = ('A'..'Z') + ('a'..'z') + ('0'..'9')
-    return (1..length)
-        .map { allowedChars.random() }
-        .joinToString("")
+    return (1..length).map { allowedChars.random() }.joinToString("")
 }
 
 fun mockConstitutionDto(): ManagementConstitutionDto = ManagementConstitutionDto(
@@ -61,7 +60,8 @@ fun mockConstitutionDto(): ManagementConstitutionDto = ManagementConstitutionDto
 )
 
 fun mockRequestingContributorHeader(asAdmin: Boolean = false): String {
-    val requestingContributorJson = """
+    val requestingContributorJson =
+        """
             {
               "contributorId": "mockedContributorId1",
               "projectAdmin": $asAdmin

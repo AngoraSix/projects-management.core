@@ -9,13 +9,12 @@ import com.angorasix.projects.management.core.infrastructure.config.configuratio
 import com.angorasix.projects.management.core.presentation.dto.ProjectManagementDto
 import com.angorasix.projects.management.core.presentation.handler.ProjectsManagementHandler
 import com.angorasix.projects.management.core.utils.mockConstitutionDto
-import com.fasterxml.jackson.databind.ObjectMapper
 import io.mockk.coEvery
 import io.mockk.every
 import io.mockk.impl.annotations.MockK
 import io.mockk.junit5.MockKExtension
 import kotlinx.coroutines.reactor.awaitSingle
-import kotlinx.coroutines.test.runBlockingTest
+import kotlinx.coroutines.test.runTest
 import org.junit.jupiter.api.BeforeEach
 import org.junit.jupiter.api.Test
 import org.junit.jupiter.api.assertThrows
@@ -33,9 +32,6 @@ class ProjectsManagementRouterUnitTest {
     private lateinit var router: ProjectsManagementRouter
 
     @MockK
-    private lateinit var objectMapper: ObjectMapper
-
-    @MockK
     private lateinit var apiConfigs: ApiConfigs
 
     @MockK
@@ -51,7 +47,7 @@ class ProjectsManagementRouterUnitTest {
         Route("mocked-update", listOf("mocked-base1"), HttpMethod.PUT, "/{id}"),
         Route("mocked-get-single", listOf("mocked-base1"), HttpMethod.GET, "/{id}"),
         Route("mocked-list-project", listOf("mocked-base1"), HttpMethod.GET, ""),
-        Route("mocked-get-single-by-projectId", listOf("mocked-base1"), HttpMethod.GET, "")
+        Route("mocked-get-single-by-projectId", listOf("mocked-base1"), HttpMethod.GET, ""),
     )
     private var basePathsConfigs: BasePathConfigs = BasePathConfigs("/projects-management")
 
@@ -60,14 +56,14 @@ class ProjectsManagementRouterUnitTest {
         every { apiConfigs.headers } returns headerConfigs
         every { apiConfigs.routes } returns routeConfigs
         every { apiConfigs.basePaths } returns basePathsConfigs
-        router = ProjectsManagementRouter(handler, objectMapper, apiConfigs)
+        router = ProjectsManagementRouter(handler, apiConfigs)
     }
 
     @Test
     @Throws(Exception::class)
     @kotlinx.coroutines.ExperimentalCoroutinesApi
     fun `Given Project router - When expected APIs requested - Then router routes correctly`() =
-        runBlockingTest {
+        runTest {
             val outputRouter = router.projectRouterFunction()
             val mockedRequest = MockServerHttpRequest.get("/mocked")
             val mockedExchange = MockServerWebExchange.builder(mockedRequest)
