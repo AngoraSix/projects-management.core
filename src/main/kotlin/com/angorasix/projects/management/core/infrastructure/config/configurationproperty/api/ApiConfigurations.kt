@@ -20,7 +20,7 @@ data class ApiConfigs(
     var routes: RoutesConfigs,
 
     @NestedConfigurationProperty
-    var basePaths: BasePathConfigs
+    var basePaths: BasePathConfigs,
 )
 
 data class HeadersConfigs constructor(val contributor: String)

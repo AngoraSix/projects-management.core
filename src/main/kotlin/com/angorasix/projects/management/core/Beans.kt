@@ -1,7 +1,7 @@
 package com.angorasix.projects.management.core
 
-import com.angorasix.projects.core.infrastructure.security.ProjectsManagementCoreSecurityConfiguration
 import com.angorasix.projects.management.core.application.ProjectsManagementService
+import com.angorasix.projects.management.core.infrastructure.security.ProjectsManagementCoreSecurityConfiguration
 import com.angorasix.projects.management.core.presentation.handler.ProjectsManagementHandler
 import com.angorasix.projects.management.core.presentation.router.ProjectsManagementRouter
 import org.springframework.context.ApplicationContextInitializer
@@ -15,7 +15,7 @@ val beans = beans {
     bean<ProjectsManagementService>()
     bean<ProjectsManagementHandler>()
     bean {
-        ProjectsManagementRouter(ref(), ref(), ref()).projectRouterFunction()
+        ProjectsManagementRouter(ref(), ref()).projectRouterFunction()
     }
 }
 

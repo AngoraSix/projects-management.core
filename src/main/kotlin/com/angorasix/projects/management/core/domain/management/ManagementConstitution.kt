@@ -9,4 +9,4 @@ package com.angorasix.projects.management.core.domain.management
  */
 data class ManagementConstitution constructor(
     val bylaws: Collection<Bylaw<Any>>,
-) {}
+)

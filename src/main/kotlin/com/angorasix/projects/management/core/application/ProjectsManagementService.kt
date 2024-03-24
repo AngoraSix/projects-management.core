@@ -28,7 +28,7 @@ class ProjectsManagementService(private val repository: ProjectManagementReposit
     suspend fun updateProjectManagement(
         id: String,
         updateData: ProjectManagement,
-        requestingContributor: SimpleContributor
+        requestingContributor: SimpleContributor,
     ): ProjectManagement? {
         val projectManagementToUpdate = repository.findByIdForContributor(
             ListProjectsManagementFilter(

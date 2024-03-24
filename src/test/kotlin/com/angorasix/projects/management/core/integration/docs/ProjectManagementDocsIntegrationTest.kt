@@ -30,12 +30,18 @@ import org.springframework.restdocs.RestDocumentationContextProvider
 import org.springframework.restdocs.RestDocumentationExtension
 import org.springframework.restdocs.headers.HeaderDocumentation.headerWithName
 import org.springframework.restdocs.headers.HeaderDocumentation.responseHeaders
-import org.springframework.restdocs.hypermedia.HypermediaDocumentation.*
+import org.springframework.restdocs.hypermedia.HypermediaDocumentation.halLinks
+import org.springframework.restdocs.hypermedia.HypermediaDocumentation.linkWithRel
+import org.springframework.restdocs.hypermedia.HypermediaDocumentation.links
 import org.springframework.restdocs.operation.preprocess.Preprocessors.preprocessResponse
 import org.springframework.restdocs.operation.preprocess.Preprocessors.prettyPrint
 import org.springframework.restdocs.payload.FieldDescriptor
 import org.springframework.restdocs.payload.JsonFieldType
-import org.springframework.restdocs.payload.PayloadDocumentation.*
+import org.springframework.restdocs.payload.PayloadDocumentation.beneathPath
+import org.springframework.restdocs.payload.PayloadDocumentation.fieldWithPath
+import org.springframework.restdocs.payload.PayloadDocumentation.requestFields
+import org.springframework.restdocs.payload.PayloadDocumentation.responseFields
+import org.springframework.restdocs.payload.PayloadDocumentation.subsectionWithPath
 import org.springframework.restdocs.request.RequestDocumentation.parameterWithName
 import org.springframework.restdocs.request.RequestDocumentation.pathParameters
 import org.springframework.restdocs.webtestclient.WebTestClientRestDocumentation.document
@@ -82,7 +88,7 @@ class ProjectManagementDocsIntegrationTest(
             .description("The current status of the Project Management"),
 
         subsectionWithPath("links").optional().description("HATEOAS links")
-            .type(JsonFieldType.ARRAY),// until we resolve and unify the list and single response links, all will be marked as optional
+            .type(JsonFieldType.ARRAY), // until we resolve and unify the list and single response links, all will be marked as optional
         subsectionWithPath("_links").optional().description("HATEOAS links")
             .type(JsonFieldType.OBJECT),
         subsectionWithPath("_templates").optional()
