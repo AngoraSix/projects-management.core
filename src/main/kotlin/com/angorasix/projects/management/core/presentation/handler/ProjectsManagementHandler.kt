@@ -2,6 +2,7 @@ package com.angorasix.projects.management.core.presentation.handler
 
 import com.angorasix.commons.domain.SimpleContributor
 import com.angorasix.commons.infrastructure.constants.AngoraSixInfrastructure
+import com.angorasix.commons.presentation.dto.IsAdminDto
 import com.angorasix.commons.reactive.presentation.error.resolveBadRequest
 import com.angorasix.commons.reactive.presentation.error.resolveNotFound
 import com.angorasix.projects.management.core.application.ProjectsManagementService
@@ -73,7 +74,6 @@ class ProjectsManagementHandler(
                 )
             return ok().contentType(MediaTypes.HAL_FORMS_JSON).bodyValueAndAwait(outputProjectManagement)
         }
-
         return resolveNotFound("Can't find Project Management", "Project Management")
     }
 
@@ -232,6 +232,28 @@ class ProjectsManagementHandler(
             resolveBadRequest("Invalid Contributor Token", "Contributor Token")
         }
     }
+
+
+    /**
+     * Handler for the Is Admin check endpoint,
+     * retrieving a Mono indicating whether the user is admin of the Project Management.
+     *
+     * @param request - HTTP `ServerRequest` object
+     * @return the `ServerResponse`
+     */
+    suspend fun validateAdminUser(request: ServerRequest): ServerResponse {
+        val requestingContributor =
+            request.attributes()[AngoraSixInfrastructure.REQUEST_ATTRIBUTE_CONTRIBUTOR_KEY]
+        val projectManagementId = request.pathVariable("id")
+        return if (requestingContributor is SimpleContributor) {
+            service.administeredProjectManagement(projectManagementId, requestingContributor)?.let {
+                val result = it.isAdministeredBy(requestingContributor)
+                ok().contentType(MediaTypes.HAL_FORMS_JSON).bodyValueAndAwait(IsAdminDto(result))
+            } ?: resolveNotFound("Can't find project management", "Project Management")
+        } else {
+            resolveBadRequest("Invalid Contributor Authentication", "Authentication")
+        }
+    }
 }
 
 private fun ProjectManagement.convertToDto(): ProjectManagementDto =
@@ -258,9 +280,9 @@ private fun ProjectManagementDto.convertToDomain(
     if (domainProjectId == null || constitutionDomainModel == null || status == null) {
         throw IllegalArgumentException(
             "Invalid ProjectManagement -" +
-                "domainProjectId: $domainProjectId -" +
-                "constitution: ${constitution?.convertToDomain()} -" +
-                "status: $status",
+                    "domainProjectId: $domainProjectId -" +
+                    "constitution: ${constitution?.convertToDomain()} -" +
+                    "status: $status",
         )
     }
     return ProjectManagement(

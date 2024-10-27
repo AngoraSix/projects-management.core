@@ -30,7 +30,7 @@ class ProjectsManagementCoreSecurityConfiguration {
             exchanges
                 .pathMatchers(
                     HttpMethod.GET,
-                    "/management-core/**",
+                    "/managements-core/**",
                 ).permitAll()
                 .anyExchange().authenticated()
         }.oauth2ResourceServer { oauth2 -> oauth2.jwt(Customizer.withDefaults()) }

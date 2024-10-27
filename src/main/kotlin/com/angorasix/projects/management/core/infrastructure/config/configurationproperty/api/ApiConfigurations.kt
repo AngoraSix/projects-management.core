@@ -34,6 +34,7 @@ data class RoutesConfigs constructor(
     val createProjectManagement: Route,
     val createProjectManagementByProjectId: Route,
     val updateProjectManagement: Route,
+    val validateAdminUser: Route,
     val getProjectManagement: Route,
     val listProjectManagements: Route,
     val getProjectManagementByProjectId: Route,

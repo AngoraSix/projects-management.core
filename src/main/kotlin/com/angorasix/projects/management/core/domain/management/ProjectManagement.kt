@@ -33,4 +33,7 @@ data class ProjectManagement @PersistenceCreator private constructor(
         constitution,
         status,
     )
+
+    fun isAdministeredBy(simpleContributor: SimpleContributor): Boolean =
+        admins.any { it.contributorId == simpleContributor.contributorId }
 }

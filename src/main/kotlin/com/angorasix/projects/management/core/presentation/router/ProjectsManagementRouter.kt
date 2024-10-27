@@ -3,6 +3,7 @@ package com.angorasix.projects.management.core.presentation.router
 import com.angorasix.commons.reactive.presentation.filter.extractRequestingContributor
 import com.angorasix.projects.management.core.infrastructure.config.configurationproperty.api.ApiConfigs
 import com.angorasix.projects.management.core.presentation.handler.ProjectsManagementHandler
+import org.springframework.web.reactive.function.server.CoRouterFunctionDsl
 import org.springframework.web.reactive.function.server.RouterFunction
 import org.springframework.web.reactive.function.server.coRouter
 
@@ -21,14 +22,15 @@ class ProjectsManagementRouter(
      *
      * @return the [RouterFunction] with all the routes for ProjectManagements
      */
-    fun projectRouterFunction() = coRouter {
+    fun managementRouterFunction() = coRouter {
+        filter { request, next ->
+            extractRequestingContributor(
+                request,
+                next,
+            )
+        }
         apiConfigs.basePaths.projectsManagement.nest {
-            filter { request, next ->
-                extractRequestingContributor(
-                    request,
-                    next,
-                )
-            }
+            defineValidateAdminUserEndpoint()
             apiConfigs.routes.baseByProjectIdCrudRoute.nest {
                 method(apiConfigs.routes.createProjectManagementByProjectId.method).nest {
                     method(
@@ -50,7 +52,7 @@ class ProjectsManagementRouter(
                         handler::updateProjectManagement,
                     )
                 }
-                method(apiConfigs.routes.getProjectManagement.method).nest {
+                method(apiConfigs.routes.validateAdminUser.method).nest {
                     method(
                         apiConfigs.routes.getProjectManagement.method,
                         handler::getProjectManagement,
@@ -58,21 +60,25 @@ class ProjectsManagementRouter(
                 }
             }
             apiConfigs.routes.baseListCrudRoute.nest {
-                path(apiConfigs.routes.baseListCrudRoute).nest {
-                    method(apiConfigs.routes.createProjectManagement.method).nest {
-                        method(
-                            apiConfigs.routes.createProjectManagement.method,
-                            handler::createProjectManagement,
-                        )
-                    }
-                    method(apiConfigs.routes.listProjectManagements.method).nest {
-                        method(
-                            apiConfigs.routes.listProjectManagements.method,
-                            handler::listProjectManagements,
-                        )
-                    }
+                method(apiConfigs.routes.createProjectManagement.method).nest {
+                    method(
+                        apiConfigs.routes.createProjectManagement.method,
+                        handler::createProjectManagement,
+                    )
+                }
+                method(apiConfigs.routes.listProjectManagements.method).nest {
+                    method(
+                        apiConfigs.routes.listProjectManagements.method,
+                        handler::listProjectManagements,
+                    )
                 }
             }
+        }
+    }
+
+    private fun CoRouterFunctionDsl.defineValidateAdminUserEndpoint() {
+        path(apiConfigs.routes.validateAdminUser.path).nest {
+            method(apiConfigs.routes.validateAdminUser.method, handler::validateAdminUser)
         }
     }
 }

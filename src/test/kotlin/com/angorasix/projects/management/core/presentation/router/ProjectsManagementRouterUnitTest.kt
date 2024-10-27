@@ -45,6 +45,7 @@ class ProjectsManagementRouterUnitTest {
         Route("mocked-create", listOf("mocked-base1"), HttpMethod.POST, ""),
         Route("mocked-create-by-projectId", listOf("mocked-base1"), HttpMethod.POST, ""),
         Route("mocked-update", listOf("mocked-base1"), HttpMethod.PUT, "/{id}"),
+        Route("mocked-validate-admin", listOf("mocked-base1"), HttpMethod.GET, ""),
         Route("mocked-get-single", listOf("mocked-base1"), HttpMethod.GET, "/{id}"),
         Route("mocked-list-project", listOf("mocked-base1"), HttpMethod.GET, ""),
         Route("mocked-get-single-by-projectId", listOf("mocked-base1"), HttpMethod.GET, ""),
@@ -64,7 +65,7 @@ class ProjectsManagementRouterUnitTest {
     @kotlinx.coroutines.ExperimentalCoroutinesApi
     fun `Given Project router - When expected APIs requested - Then router routes correctly`() =
         runTest {
-            val outputRouter = router.projectRouterFunction()
+            val outputRouter = router.managementRouterFunction()
             val mockedRequest = MockServerHttpRequest.get("/mocked")
             val mockedExchange = MockServerWebExchange.builder(mockedRequest)
                 .build()
