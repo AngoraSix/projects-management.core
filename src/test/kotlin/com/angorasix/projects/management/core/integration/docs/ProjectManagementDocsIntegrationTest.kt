@@ -16,6 +16,8 @@ import org.junit.jupiter.api.BeforeAll
 import org.junit.jupiter.api.BeforeEach
 import org.junit.jupiter.api.Test
 import org.junit.jupiter.api.extension.ExtendWith
+import org.slf4j.Logger
+import org.slf4j.LoggerFactory
 import org.springframework.beans.factory.annotation.Autowired
 import org.springframework.boot.context.properties.EnableConfigurationProperties
 import org.springframework.boot.test.context.SpringBootTest
@@ -30,18 +32,12 @@ import org.springframework.restdocs.RestDocumentationContextProvider
 import org.springframework.restdocs.RestDocumentationExtension
 import org.springframework.restdocs.headers.HeaderDocumentation.headerWithName
 import org.springframework.restdocs.headers.HeaderDocumentation.responseHeaders
-import org.springframework.restdocs.hypermedia.HypermediaDocumentation.halLinks
-import org.springframework.restdocs.hypermedia.HypermediaDocumentation.linkWithRel
-import org.springframework.restdocs.hypermedia.HypermediaDocumentation.links
+import org.springframework.restdocs.hypermedia.HypermediaDocumentation.*
 import org.springframework.restdocs.operation.preprocess.Preprocessors.preprocessResponse
 import org.springframework.restdocs.operation.preprocess.Preprocessors.prettyPrint
 import org.springframework.restdocs.payload.FieldDescriptor
 import org.springframework.restdocs.payload.JsonFieldType
-import org.springframework.restdocs.payload.PayloadDocumentation.beneathPath
-import org.springframework.restdocs.payload.PayloadDocumentation.fieldWithPath
-import org.springframework.restdocs.payload.PayloadDocumentation.requestFields
-import org.springframework.restdocs.payload.PayloadDocumentation.responseFields
-import org.springframework.restdocs.payload.PayloadDocumentation.subsectionWithPath
+import org.springframework.restdocs.payload.PayloadDocumentation.*
 import org.springframework.restdocs.request.RequestDocumentation.parameterWithName
 import org.springframework.restdocs.request.RequestDocumentation.pathParameters
 import org.springframework.restdocs.webtestclient.WebTestClientRestDocumentation.document
@@ -66,6 +62,11 @@ class ProjectManagementDocsIntegrationTest(
     @Autowired val properties: IntegrationProperties,
     @Autowired val apiConfigs: ApiConfigs,
 ) {
+
+    /* default */
+    val logger: Logger = LoggerFactory.getLogger(
+        ProjectManagementDocsIntegrationTest::class.java,
+    )
 
     private lateinit var webTestClient: WebTestClient
 
@@ -129,15 +130,15 @@ class ProjectManagementDocsIntegrationTest(
             )
             .filter(
                 ExchangeFilterFunction.ofRequestProcessor { clientRequest ->
-                    println(
-                        "Request: ${clientRequest.method()} ${clientRequest.url()}",
-                    )
+                    if (logger.isDebugEnabled) {
+                        logger.debug("Request: ${clientRequest.method()} ${clientRequest.url()}")
+                    }
                     clientRequest.headers()
                         .forEach { name, values ->
                             values.forEach { value ->
-                                println(
-                                    "$name=$value",
-                                )
+                                if (logger.isDebugEnabled) {
+                                    logger.debug("$name=$value",)
+                                }
                             }
                         }
                     Mono.just(clientRequest)
@@ -157,7 +158,7 @@ class ProjectManagementDocsIntegrationTest(
         val newProjectManagement = mockProjectManagementDto()
         webTestClient.post()
             .uri(
-                "/management-core",
+                "/managements-core",
             )
             .accept(MediaType.APPLICATION_JSON)
             .contentType(MediaTypes.HAL_FORMS_JSON)
@@ -194,7 +195,7 @@ class ProjectManagementDocsIntegrationTest(
 
         webTestClient.get()
             .uri(
-                "/management-core/{projectManagementId}",
+                "/managements-core/{projectManagementId}",
                 elementId,
             )
             .accept(MediaType.APPLICATION_JSON)
@@ -212,7 +213,7 @@ class ProjectManagementDocsIntegrationTest(
 
     private fun executeAndDocumentGetListProjectsRequest() {
         webTestClient.get()
-            .uri("/management-core")
+            .uri("/managements-core")
             .accept(MediaType.APPLICATION_JSON)
             .exchange()
             .expectStatus().isOk.expectBody()

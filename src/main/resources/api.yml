@@ -3,7 +3,7 @@ configs:
     headers:
       contributor: ${A6_PROJECTS_CORE_CONTRIBUTORHEADER:A6-Contributor}
     basePaths:
-      projectsManagement: "/management-core"
+      projectsManagement: "/managements-core"
     routes:
       baseListCrudRoute: ""
       baseByIdCrudRoute: "/{id}"
@@ -26,6 +26,12 @@ configs:
           - ${configs.api.basePaths.projectsManagement}
         method: PUT
         path: ${configs.api.routes.baseByIdCrudRoute}
+      validateAdminUser:
+        name: validateAdminUser
+        basePaths:
+          - ${configs.api.basePaths.projectsManagement}
+        method: GET
+        path: ${configs.api.routes.baseByIdCrudRoute}/isAdmin
       getProjectManagement:
         name: getProjectManagement
         basePaths:

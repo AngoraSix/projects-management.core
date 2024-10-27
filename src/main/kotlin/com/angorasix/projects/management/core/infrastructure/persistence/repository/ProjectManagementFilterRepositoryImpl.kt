@@ -23,7 +23,7 @@ class ProjectManagementFilterRepositoryImpl(val mongoOps: ReactiveMongoOperation
         return mongoOps.find(filter.toQuery(), ProjectManagement::class.java).asFlow()
     }
 
-    override suspend fun findByIdForContributor(
+    override suspend fun findForContributorUsingFilter(
         filter: ListProjectsManagementFilter,
         requestingContributor: SimpleContributor?,
     ): ProjectManagement? {

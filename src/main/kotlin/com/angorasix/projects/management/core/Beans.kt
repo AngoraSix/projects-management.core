@@ -15,7 +15,7 @@ val beans = beans {
     bean<ProjectsManagementService>()
     bean<ProjectsManagementHandler>()
     bean {
-        ProjectsManagementRouter(ref(), ref()).projectRouterFunction()
+        ProjectsManagementRouter(ref(), ref()).managementRouterFunction()
     }
 }
 

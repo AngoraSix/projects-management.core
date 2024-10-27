@@ -5,6 +5,7 @@ import com.angorasix.projects.management.core.domain.management.ProjectManagemen
 import com.angorasix.projects.management.core.domain.management.ProjectManagementRepository
 import com.angorasix.projects.management.core.infrastructure.queryfilters.ListProjectsManagementFilter
 import kotlinx.coroutines.flow.Flow
+import reactor.core.publisher.Mono
 
 /**
  *
@@ -30,7 +31,7 @@ class ProjectsManagementService(private val repository: ProjectManagementReposit
         updateData: ProjectManagement,
         requestingContributor: SimpleContributor,
     ): ProjectManagement? {
-        val projectManagementToUpdate = repository.findByIdForContributor(
+        val projectManagementToUpdate = repository.findForContributorUsingFilter(
             ListProjectsManagementFilter(
                 listOf(updateData.projectId),
                 setOf(requestingContributor.contributorId),
@@ -46,4 +47,23 @@ class ProjectsManagementService(private val repository: ProjectManagementReposit
         this.status = other.status
         return this
     }
+
+
+    /**
+     * Method to check if the contributor is admin of a single [ProjectManagement] from an id.
+     *
+     * @param projectManagementId [ProjectManagement] id
+     * @return a [Mono] with the persisted [ProjectManagement]
+     */
+    suspend fun administeredProjectManagement(
+        projectManagementId: String,
+        simpleContributor: SimpleContributor,
+    ): ProjectManagement? = repository.findForContributorUsingFilter(
+        ListProjectsManagementFilter(
+            null,
+            setOf(simpleContributor.contributorId),
+            setOf(projectManagementId)
+        ),
+        simpleContributor,
+    )
 }
