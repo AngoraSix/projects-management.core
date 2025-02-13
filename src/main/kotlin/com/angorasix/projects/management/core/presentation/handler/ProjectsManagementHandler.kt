@@ -72,7 +72,8 @@ class ProjectsManagementHandler(
                     apiConfigs,
                     request,
                 )
-            return ok().contentType(MediaTypes.HAL_FORMS_JSON).bodyValueAndAwait(outputProjectManagement)
+            return ok().contentType(MediaTypes.HAL_FORMS_JSON)
+                .bodyValueAndAwait(outputProjectManagement)
         }
         return resolveNotFound("Can't find Project Management", "Project Management")
     }
@@ -225,14 +226,13 @@ class ProjectsManagementHandler(
                         apiConfigs,
                         request,
                     )
-
-                ok().contentType(MediaTypes.HAL_FORMS_JSON).bodyValueAndAwait(outputProjectManagement)
+                ok().contentType(MediaTypes.HAL_FORMS_JSON)
+                    .bodyValueAndAwait(outputProjectManagement)
             } ?: resolveNotFound("Can't update this project management", "Project Management")
         } else {
             resolveBadRequest("Invalid Contributor Token", "Contributor Token")
         }
     }
-
 
     /**
      * Handler for the Is Admin check endpoint,
@@ -280,9 +280,9 @@ private fun ProjectManagementDto.convertToDomain(
     if (domainProjectId == null || constitutionDomainModel == null || status == null) {
         throw IllegalArgumentException(
             "Invalid ProjectManagement -" +
-                    "domainProjectId: $domainProjectId -" +
-                    "constitution: ${constitution?.convertToDomain()} -" +
-                    "status: $status",
+                "domainProjectId: $domainProjectId -" +
+                "constitution: ${constitution?.convertToDomain()} -" +
+                "status: $status",
         )
     }
     return ProjectManagement(

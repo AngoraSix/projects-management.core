@@ -8,7 +8,6 @@ import com.angorasix.projects.management.core.integration.utils.initializeMongod
 import com.angorasix.projects.management.core.presentation.dto.ProjectManagementDto
 import com.angorasix.projects.management.core.presentation.dto.ProjectsManagementQueryParams
 import com.angorasix.projects.management.core.utils.mockProjectManagementDto
-import com.angorasix.projects.management.core.utils.mockRequestingContributorHeader
 import com.fasterxml.jackson.databind.ObjectMapper
 import kotlinx.coroutines.runBlocking
 import org.hamcrest.Matchers.greaterThanOrEqualTo
@@ -126,7 +125,6 @@ class ProjectsManagementIntegrationTest(
             .uri("/projects-management")
             .accept(MediaType.APPLICATION_JSON)
             .contentType(MediaTypes.HAL_FORMS_JSON)
-            .header(apiConfigs.headers.contributor, mockRequestingContributorHeader(true))
             .body(
                 Mono.just(projectManagementBody),
                 ProjectManagementDto::class.java,
@@ -148,7 +146,6 @@ class ProjectsManagementIntegrationTest(
             .uri("/projects-management")
             .accept(MediaType.APPLICATION_JSON)
             .contentType(MediaTypes.HAL_FORMS_JSON)
-            .header(apiConfigs.headers.contributor, mockRequestingContributorHeader(true))
             .body(
                 Mono.just(projectManagementBody),
                 ProjectManagementDto::class.java,
@@ -189,7 +186,6 @@ class ProjectsManagementIntegrationTest(
             .uri("/projects-management")
             .accept(MediaType.APPLICATION_JSON)
             .contentType(MediaTypes.HAL_FORMS_JSON)
-            .header(apiConfigs.headers.contributor, mockRequestingContributorHeader(true))
             .body(
                 Mono.just(projectManagementBody),
                 String::class.java,
@@ -210,7 +206,6 @@ class ProjectsManagementIntegrationTest(
             .uri("/projects-management")
             .contentType(MediaTypes.HAL_FORMS_JSON)
             .accept(MediaType.APPLICATION_JSON)
-            .header(apiConfigs.headers.contributor, mockRequestingContributorHeader(true))
             .body(
                 Mono.just(projectManagementBody),
                 String::class.java,
@@ -231,7 +226,6 @@ class ProjectsManagementIntegrationTest(
             .uri("/projects-management")
             .accept(MediaType.APPLICATION_JSON)
             .contentType(MediaTypes.HAL_FORMS_JSON)
-            .header(apiConfigs.headers.contributor, mockRequestingContributorHeader(true))
             .body(
                 Mono.just(projectManagementBody),
                 ProjectManagementDto::class.java,

@@ -9,7 +9,6 @@ import com.angorasix.projects.management.core.infrastructure.config.configuratio
 import com.angorasix.projects.management.core.integration.utils.IntegrationProperties
 import com.angorasix.projects.management.core.integration.utils.initializeMongodb
 import com.angorasix.projects.management.core.utils.mockProjectManagementDto
-import com.angorasix.projects.management.core.utils.mockRequestingContributorHeader
 import com.fasterxml.jackson.databind.ObjectMapper
 import kotlinx.coroutines.runBlocking
 import org.junit.jupiter.api.BeforeAll
@@ -32,12 +31,18 @@ import org.springframework.restdocs.RestDocumentationContextProvider
 import org.springframework.restdocs.RestDocumentationExtension
 import org.springframework.restdocs.headers.HeaderDocumentation.headerWithName
 import org.springframework.restdocs.headers.HeaderDocumentation.responseHeaders
-import org.springframework.restdocs.hypermedia.HypermediaDocumentation.*
+import org.springframework.restdocs.hypermedia.HypermediaDocumentation.halLinks
+import org.springframework.restdocs.hypermedia.HypermediaDocumentation.linkWithRel
+import org.springframework.restdocs.hypermedia.HypermediaDocumentation.links
 import org.springframework.restdocs.operation.preprocess.Preprocessors.preprocessResponse
 import org.springframework.restdocs.operation.preprocess.Preprocessors.prettyPrint
 import org.springframework.restdocs.payload.FieldDescriptor
 import org.springframework.restdocs.payload.JsonFieldType
-import org.springframework.restdocs.payload.PayloadDocumentation.*
+import org.springframework.restdocs.payload.PayloadDocumentation.beneathPath
+import org.springframework.restdocs.payload.PayloadDocumentation.fieldWithPath
+import org.springframework.restdocs.payload.PayloadDocumentation.requestFields
+import org.springframework.restdocs.payload.PayloadDocumentation.responseFields
+import org.springframework.restdocs.payload.PayloadDocumentation.subsectionWithPath
 import org.springframework.restdocs.request.RequestDocumentation.parameterWithName
 import org.springframework.restdocs.request.RequestDocumentation.pathParameters
 import org.springframework.restdocs.webtestclient.WebTestClientRestDocumentation.document
@@ -137,7 +142,7 @@ class ProjectManagementDocsIntegrationTest(
                         .forEach { name, values ->
                             values.forEach { value ->
                                 if (logger.isDebugEnabled) {
-                                    logger.debug("$name=$value",)
+                                    logger.debug("$name=$value")
                                 }
                             }
                         }
@@ -162,7 +167,6 @@ class ProjectManagementDocsIntegrationTest(
             )
             .accept(MediaType.APPLICATION_JSON)
             .contentType(MediaTypes.HAL_FORMS_JSON)
-            .header(apiConfigs.headers.contributor, mockRequestingContributorHeader(true))
             .body(Mono.just(newProjectManagement))
             .exchange()
             .expectStatus().isCreated.expectBody()

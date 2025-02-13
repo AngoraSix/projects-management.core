@@ -14,23 +14,20 @@ import org.springframework.http.HttpMethod
 @ConfigurationProperties(prefix = "configs.api")
 data class ApiConfigs(
     @NestedConfigurationProperty
-    var headers: HeadersConfigs,
-
-    @NestedConfigurationProperty
     var routes: RoutesConfigs,
 
     @NestedConfigurationProperty
     var basePaths: BasePathConfigs,
 )
 
-data class HeadersConfigs constructor(val contributor: String)
-
-data class BasePathConfigs constructor(val projectsManagement: String)
-
-data class RoutesConfigs constructor(
+data class BasePathConfigs(
+    val projectsManagement: String,
     val baseListCrudRoute: String,
     val baseByIdCrudRoute: String,
     val baseByProjectIdCrudRoute: String,
+)
+
+data class RoutesConfigs(
     val createProjectManagement: Route,
     val createProjectManagementByProjectId: Route,
     val updateProjectManagement: Route,
