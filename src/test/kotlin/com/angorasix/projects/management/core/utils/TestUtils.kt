@@ -58,14 +58,3 @@ fun mockConstitutionDto(): ManagementConstitutionDto = ManagementConstitutionDto
         BylawDto(BylawWellknownScope.OWNERSHIP_MECHANISM.name, "CAPS-BASED"),
     ),
 )
-
-fun mockRequestingContributorHeader(asAdmin: Boolean = false): String {
-    val requestingContributorJson =
-        """
-            {
-              "contributorId": "mockedContributorId1",
-              "projectAdmin": $asAdmin
-            }
-        """.trimIndent()
-    return Base64.getUrlEncoder().encodeToString(requestingContributorJson.toByteArray())
-}

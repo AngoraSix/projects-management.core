@@ -48,7 +48,6 @@ class ProjectsManagementService(private val repository: ProjectManagementReposit
         return this
     }
 
-
     /**
      * Method to check if the contributor is admin of a single [ProjectManagement] from an id.
      *
@@ -62,7 +61,7 @@ class ProjectsManagementService(private val repository: ProjectManagementReposit
         ListProjectsManagementFilter(
             null,
             setOf(simpleContributor.contributorId),
-            setOf(projectManagementId)
+            setOf(projectManagementId),
         ),
         simpleContributor,
     )

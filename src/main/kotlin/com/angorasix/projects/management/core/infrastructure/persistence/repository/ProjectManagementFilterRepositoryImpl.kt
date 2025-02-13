@@ -35,8 +35,8 @@ class ProjectManagementFilterRepositoryImpl(val mongoOps: ReactiveMongoOperation
 private fun ListProjectsManagementFilter.toQuery(requestingContributor: SimpleContributor? = null): Query {
     val query = Query()
 
-    ids?.let { query.addCriteria(where("_id").`in`(it)) }
-    projectIds?.let { query.addCriteria(where("projectId").`in`(it)) }
+    ids?.let { query.addCriteria(where("_id").`in`(it as Collection<Any>)) }
+    projectIds?.let { query.addCriteria(where("projectId").`in`(it as Collection<Any>)) }
 
     if (adminId != null && requestingContributor != null) {
         query.addCriteria(where("admins.contributorId").`in`(adminId + requestingContributor.contributorId))
