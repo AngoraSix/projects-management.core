@@ -1,6 +1,7 @@
 package com.angorasix.projects.management.core.presentation.dto
 
 import com.angorasix.commons.domain.SimpleContributor
+import com.angorasix.commons.presentation.dto.projectmanagement.BylawDto
 import com.angorasix.projects.management.core.domain.management.ManagementStatus
 import org.springframework.hateoas.RepresentationModel
 
@@ -19,9 +20,4 @@ data class ProjectManagementDto(
 
 data class ManagementConstitutionDto(
     val bylaws: Collection<BylawDto>? = emptyList(),
-)
-
-data class BylawDto(
-    val scope: String,
-    val definition: Any,
 )

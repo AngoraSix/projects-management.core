@@ -1,7 +1,7 @@
 package com.angorasix.projects.management.core.integration.docs
 
+import com.angorasix.commons.domain.projectmanagement.core.Bylaw
 import com.angorasix.projects.management.core.ProjectsManagementCoreApplication
-import com.angorasix.projects.management.core.domain.management.Bylaw
 import com.angorasix.projects.management.core.domain.management.ManagementConstitution
 import com.angorasix.projects.management.core.domain.management.ManagementStatus
 import com.angorasix.projects.management.core.domain.management.ProjectManagement
@@ -67,89 +67,105 @@ class ProjectManagementDocsIntegrationTest(
     @Autowired val properties: IntegrationProperties,
     @Autowired val apiConfigs: ApiConfigs,
 ) {
-
-    /* default */
-    val logger: Logger = LoggerFactory.getLogger(
-        ProjectManagementDocsIntegrationTest::class.java,
-    )
+    // default
+    val logger: Logger =
+        LoggerFactory.getLogger(
+            ProjectManagementDocsIntegrationTest::class.java,
+        )
 
     private lateinit var webTestClient: WebTestClient
 
-    var bylawDescription = arrayOf<FieldDescriptor>(
-        fieldWithPath("scope").description("'key' field identifying the aspect defined by the bylaw"),
-        fieldWithPath("definition").description("Actual definition of the rule"),
-    )
+    var bylawDescription =
+        arrayOf<FieldDescriptor>(
+            fieldWithPath("scope").description("'key' field identifying the aspect defined by the bylaw"),
+            fieldWithPath("definition").description("Actual definition of the rule"),
+        )
 
-    var constitutionDescription = arrayOf<FieldDescriptor>(
-        subsectionWithPath("bylaws[]").type(ArrayOfFieldType(Bylaw::class.simpleName))
-            .description("Array of the associated bylaws that define the management constitution"),
-    )
+    var constitutionDescription =
+        arrayOf<FieldDescriptor>(
+            subsectionWithPath("bylaws[]")
+                .type(ArrayOfFieldType(Bylaw::class.simpleName))
+                .description("Array of the associated bylaws that define the management constitution"),
+        )
 
-    var projectManagementDescriptor = arrayOf<FieldDescriptor>(
-        fieldWithPath("id").description("Project Management identifier"),
-        fieldWithPath("projectId").description("Identifier of the associated Project Id"),
-        subsectionWithPath("constitution").type(ManagementConstitution::class.simpleName)
-            .description("The Project Management constitution containing all the foundational management rules"),
-        subsectionWithPath("status").type(ManagementStatus::class.simpleName)
-            .description("The current status of the Project Management"),
+    var projectManagementDescriptor =
+        arrayOf<FieldDescriptor>(
+            fieldWithPath("id").description("Project Management identifier"),
+            fieldWithPath("projectId").description("Identifier of the associated Project Id"),
+            subsectionWithPath("constitution")
+                .type(ManagementConstitution::class.simpleName)
+                .description("The Project Management constitution containing all the foundational management rules"),
+            subsectionWithPath("status")
+                .type(ManagementStatus::class.simpleName)
+                .description("The current status of the Project Management"),
+            subsectionWithPath("links")
+                .optional()
+                .description("HATEOAS links")
+                .type(JsonFieldType.ARRAY), // until we resolve and unify the list and single response links, all will be marked as optional
+            subsectionWithPath("_links")
+                .optional()
+                .description("HATEOAS links")
+                .type(JsonFieldType.OBJECT),
+            subsectionWithPath("_templates")
+                .optional()
+                .description("HATEOAS HAL-FORM links template info")
+                .type(
+                    JsonFieldType.OBJECT,
+                ),
+        )
 
-        subsectionWithPath("links").optional().description("HATEOAS links")
-            .type(JsonFieldType.ARRAY), // until we resolve and unify the list and single response links, all will be marked as optional
-        subsectionWithPath("_links").optional().description("HATEOAS links")
-            .type(JsonFieldType.OBJECT),
-        subsectionWithPath("_templates").optional()
-            .description("HATEOAS HAL-FORM links template info").type(
-                JsonFieldType.OBJECT,
-            ),
-    )
-
-    var projectManagementPostBodyDescriptor = arrayOf<FieldDescriptor>(
-        fieldWithPath("id").description("Project Management identifier"),
-        fieldWithPath("projectId").description("Identifier of the associated Project Id"),
-        subsectionWithPath("constitution").type(ManagementConstitution::class.simpleName)
-            .description("The Project Management constitution containing all the foundational management rules"),
-        subsectionWithPath("status").type(ManagementStatus::class.simpleName)
-            .description("The current status of the Project Management"),
-        fieldWithPath("links[]").ignored(),
-    )
+    var projectManagementPostBodyDescriptor =
+        arrayOf<FieldDescriptor>(
+            fieldWithPath("id").description("Project Management identifier"),
+            fieldWithPath("projectId").description("Identifier of the associated Project Id"),
+            subsectionWithPath("constitution")
+                .type(ManagementConstitution::class.simpleName)
+                .description("The Project Management constitution containing all the foundational management rules"),
+            subsectionWithPath("status")
+                .type(ManagementStatus::class.simpleName)
+                .description("The current status of the Project Management"),
+            fieldWithPath("links[]").ignored(),
+        )
 
     @BeforeAll
-    fun setUpDb() = runBlocking {
-        initializeMongodb(
-            properties.mongodb.baseJsonFile,
-            mongoTemplate,
-            mapper,
-        )
-    }
+    fun setUpDb() =
+        runBlocking {
+            initializeMongodb(
+                properties.mongodb.baseJsonFile,
+                mongoTemplate,
+                mapper,
+            )
+        }
 
     @BeforeEach
     fun setUpWebClient(
         applicationContext: ApplicationContext,
         restDocumentation: RestDocumentationContextProvider,
     ) = runBlocking {
-        webTestClient = WebTestClient.bindToApplicationContext(applicationContext)
-            .configureClient()
-            .responseTimeout(Duration.ofMillis(30000))
-            .filter(
-                documentationConfiguration(restDocumentation),
-            )
-            .filter(
-                ExchangeFilterFunction.ofRequestProcessor { clientRequest ->
-                    if (logger.isDebugEnabled) {
-                        logger.debug("Request: ${clientRequest.method()} ${clientRequest.url()}")
-                    }
-                    clientRequest.headers()
-                        .forEach { name, values ->
-                            values.forEach { value ->
-                                if (logger.isDebugEnabled) {
-                                    logger.debug("$name=$value")
+        webTestClient =
+            WebTestClient
+                .bindToApplicationContext(applicationContext)
+                .configureClient()
+                .responseTimeout(Duration.ofMillis(30000))
+                .filter(
+                    documentationConfiguration(restDocumentation),
+                ).filter(
+                    ExchangeFilterFunction.ofRequestProcessor { clientRequest ->
+                        if (logger.isDebugEnabled) {
+                            logger.debug("Request: ${clientRequest.method()} ${clientRequest.url()}")
+                        }
+                        clientRequest
+                            .headers()
+                            .forEach { name, values ->
+                                values.forEach { value ->
+                                    if (logger.isDebugEnabled) {
+                                        logger.debug("$name=$value")
+                                    }
                                 }
                             }
-                        }
-                    Mono.just(clientRequest)
-                },
-            )
-            .build()
+                        Mono.just(clientRequest)
+                    },
+                ).build()
     }
 
     @Test
@@ -161,15 +177,17 @@ class ProjectManagementDocsIntegrationTest(
 
     private fun executeAndDocumentPostCreateProjectRequest() {
         val newProjectManagement = mockProjectManagementDto()
-        webTestClient.post()
+        webTestClient
+            .post()
             .uri(
                 "/managements-core",
-            )
-            .accept(MediaType.APPLICATION_JSON)
+            ).accept(MediaType.APPLICATION_JSON)
             .contentType(MediaTypes.HAL_FORMS_JSON)
             .body(Mono.just(newProjectManagement))
             .exchange()
-            .expectStatus().isCreated.expectBody()
+            .expectStatus()
+            .isCreated
+            .expectBody()
             .consumeWith(
                 document(
                     "project-create",
@@ -191,20 +209,23 @@ class ProjectManagementDocsIntegrationTest(
     private fun executeAndDocumentGetSingleProjectRequest() {
         val initElementQuery = Query()
         initElementQuery.addCriteria(
-            Criteria.where("projectId")
+            Criteria
+                .where("projectId")
                 .`is`("123withSingleSection"),
         )
         val elementId =
             mongoTemplate.findOne(initElementQuery, ProjectManagement::class.java).block()?.id
 
-        webTestClient.get()
+        webTestClient
+            .get()
             .uri(
                 "/managements-core/{projectManagementId}",
                 elementId,
-            )
-            .accept(MediaType.APPLICATION_JSON)
+            ).accept(MediaType.APPLICATION_JSON)
             .exchange()
-            .expectStatus().isOk.expectBody()
+            .expectStatus()
+            .isOk
+            .expectBody()
             .consumeWith(
                 document(
                     "project-single",
@@ -216,17 +237,21 @@ class ProjectManagementDocsIntegrationTest(
     }
 
     private fun executeAndDocumentGetListProjectsRequest() {
-        webTestClient.get()
+        webTestClient
+            .get()
             .uri("/managements-core")
             .accept(MediaType.APPLICATION_JSON)
             .exchange()
-            .expectStatus().isOk.expectBody()
+            .expectStatus()
+            .isOk
+            .expectBody()
             .consumeWith(
                 document(
                     "project-list",
                     preprocessResponse(prettyPrint()),
                     responseFields(
-                        fieldWithPath("[]").type(ArrayOfFieldType(ProjectManagement::class.simpleName))
+                        fieldWithPath("[]")
+                            .type(ArrayOfFieldType(ProjectManagement::class.simpleName))
                             .description("An array of projects"),
                     ).andWithPrefix(
                         "[].",
@@ -246,7 +271,9 @@ class ProjectManagementDocsIntegrationTest(
             )
     }
 
-    private class ArrayOfFieldType(private val field: String?) {
+    private class ArrayOfFieldType(
+        private val field: String?,
+    ) {
         override fun toString(): String = "Array of $field"
     }
 }
