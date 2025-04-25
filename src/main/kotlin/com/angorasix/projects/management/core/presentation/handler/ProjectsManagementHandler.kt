@@ -3,15 +3,15 @@ package com.angorasix.projects.management.core.presentation.handler
 import com.angorasix.commons.domain.SimpleContributor
 import com.angorasix.commons.infrastructure.constants.AngoraSixInfrastructure
 import com.angorasix.commons.presentation.dto.IsAdminDto
+import com.angorasix.commons.presentation.dto.projectmanagement.convertToDomain
+import com.angorasix.commons.presentation.dto.projectmanagement.convertToDto
 import com.angorasix.commons.reactive.presentation.error.resolveBadRequest
 import com.angorasix.commons.reactive.presentation.error.resolveNotFound
 import com.angorasix.projects.management.core.application.ProjectsManagementService
-import com.angorasix.projects.management.core.domain.management.Bylaw
 import com.angorasix.projects.management.core.domain.management.ManagementConstitution
 import com.angorasix.projects.management.core.domain.management.ProjectManagement
 import com.angorasix.projects.management.core.infrastructure.config.configurationproperty.api.ApiConfigs
 import com.angorasix.projects.management.core.infrastructure.queryfilters.ListProjectsManagementFilter
-import com.angorasix.projects.management.core.presentation.dto.BylawDto
 import com.angorasix.projects.management.core.presentation.dto.ManagementConstitutionDto
 import com.angorasix.projects.management.core.presentation.dto.ProjectManagementDto
 import com.angorasix.projects.management.core.presentation.dto.ProjectsManagementQueryParams
@@ -47,11 +47,13 @@ class ProjectsManagementHandler(
     suspend fun listProjectManagements(request: ServerRequest): ServerResponse {
         val requestingContributor =
             request.attributes()[AngoraSixInfrastructure.REQUEST_ATTRIBUTE_CONTRIBUTOR_KEY]
-        return service.findProjectManagements(request.queryParams().toQueryFilter()).map {
-            it.convertToDto(requestingContributor as? SimpleContributor, apiConfigs, request)
-        }.let {
-            ok().contentType(MediaTypes.HAL_FORMS_JSON).bodyAndAwait(it)
-        }
+        return service
+            .findProjectManagements(request.queryParams().toQueryFilter())
+            .map {
+                it.convertToDto(requestingContributor as? SimpleContributor, apiConfigs, request)
+            }.let {
+                ok().contentType(MediaTypes.HAL_FORMS_JSON).bodyAndAwait(it)
+            }
     }
 
     /**
@@ -72,7 +74,8 @@ class ProjectsManagementHandler(
                     apiConfigs,
                     request,
                 )
-            return ok().contentType(MediaTypes.HAL_FORMS_JSON)
+            return ok()
+                .contentType(MediaTypes.HAL_FORMS_JSON)
                 .bodyValueAndAwait(outputProjectManagement)
         }
         return resolveNotFound("Can't find Project Management", "Project Management")
@@ -96,7 +99,8 @@ class ProjectsManagementHandler(
                     apiConfigs,
                     request,
                 )
-            return ok().contentType(MediaTypes.HAL_FORMS_JSON)
+            return ok()
+                .contentType(MediaTypes.HAL_FORMS_JSON)
                 .bodyValueAndAwait(outputProjectManagement)
         }
 
@@ -118,30 +122,35 @@ class ProjectsManagementHandler(
             request.attributes()[AngoraSixInfrastructure.REQUEST_ATTRIBUTE_CONTRIBUTOR_KEY]
 
         return if (requestingContributor is SimpleContributor) {
-            val project = try {
-                request.awaitBody<ProjectManagementDto>()
-                    .convertToDomain(
-                        setOf(
-                            SimpleContributor(
-                                requestingContributor.contributorId,
-                                emptySet(),
+            val project =
+                try {
+                    request
+                        .awaitBody<ProjectManagementDto>()
+                        .convertToDomain(
+                            setOf(
+                                SimpleContributor(
+                                    requestingContributor.contributorId,
+                                    emptySet(),
+                                ),
                             ),
-                        ),
+                        )
+                } catch (e: IllegalArgumentException) {
+                    return resolveBadRequest(
+                        e.message ?: "Incorrect Project Management body",
+                        "Project Management",
                     )
-            } catch (e: IllegalArgumentException) {
-                return resolveBadRequest(
-                    e.message ?: "Incorrect Project Management body",
-                    "Project Management",
-                )
-            }
+                }
 
-            val outputProjectManagement = service.createProjectManagement(project)
-                .convertToDto(requestingContributor, apiConfigs, request)
+            val outputProjectManagement =
+                service
+                    .createProjectManagement(project)
+                    .convertToDto(requestingContributor, apiConfigs, request)
 
             val selfLink =
                 outputProjectManagement.links.getRequiredLink(IanaLinkRelations.SELF).href
 
-            created(URI.create(selfLink)).contentType(MediaTypes.HAL_FORMS_JSON)
+            created(URI.create(selfLink))
+                .contentType(MediaTypes.HAL_FORMS_JSON)
                 .bodyValueAndAwait(outputProjectManagement)
         } else {
             resolveBadRequest("Invalid Contributor Token", "Contributor Token")
@@ -161,31 +170,36 @@ class ProjectsManagementHandler(
         return if (requestingContributor is SimpleContributor) {
             val projectId = request.pathVariable("projectId")
 
-            val project = try {
-                request.awaitBody<ProjectManagementDto>()
-                    .convertToDomain(
-                        setOf(
-                            SimpleContributor(
-                                requestingContributor.contributorId,
-                                emptySet(),
+            val project =
+                try {
+                    request
+                        .awaitBody<ProjectManagementDto>()
+                        .convertToDomain(
+                            setOf(
+                                SimpleContributor(
+                                    requestingContributor.contributorId,
+                                    emptySet(),
+                                ),
                             ),
-                        ),
-                        projectId,
+                            projectId,
+                        )
+                } catch (e: IllegalArgumentException) {
+                    return resolveBadRequest(
+                        e.message ?: "Incorrect Project Management body",
+                        "Project Management",
                     )
-            } catch (e: IllegalArgumentException) {
-                return resolveBadRequest(
-                    e.message ?: "Incorrect Project Management body",
-                    "Project Management",
-                )
-            }
+                }
 
-            val outputProjectManagement = service.createProjectManagement(project)
-                .convertToDto(requestingContributor, apiConfigs, request)
+            val outputProjectManagement =
+                service
+                    .createProjectManagement(project)
+                    .convertToDto(requestingContributor, apiConfigs, request)
 
             val selfLink =
                 outputProjectManagement.links.getRequiredLink(IanaLinkRelations.SELF).href
 
-            created(URI.create(selfLink)).contentType(MediaTypes.HAL_FORMS_JSON)
+            created(URI.create(selfLink))
+                .contentType(MediaTypes.HAL_FORMS_JSON)
                 .bodyValueAndAwait(outputProjectManagement)
         } else {
             resolveBadRequest("Invalid Contributor Token", "Contributor Token")
@@ -205,30 +219,34 @@ class ProjectsManagementHandler(
         return if (requestingContributor is SimpleContributor) {
             val projectId = request.pathVariable("id")
 
-            val updateProjectManagementData = try {
-                request.awaitBody<ProjectManagementDto>()
-                    .let { it.convertToDomain(it.admins ?: emptySet()) }
-            } catch (e: IllegalArgumentException) {
-                return resolveBadRequest(
-                    e.message ?: "Incorrect Project Management body",
-                    "Project Management",
-                )
-            }
-
-            service.updateProjectManagement(
-                projectId,
-                updateProjectManagementData,
-                requestingContributor,
-            )?.let {
-                val outputProjectManagement =
-                    it.convertToDto(
-                        requestingContributor,
-                        apiConfigs,
-                        request,
+            val updateProjectManagementData =
+                try {
+                    request
+                        .awaitBody<ProjectManagementDto>()
+                        .let { it.convertToDomain(it.admins ?: emptySet()) }
+                } catch (e: IllegalArgumentException) {
+                    return resolveBadRequest(
+                        e.message ?: "Incorrect Project Management body",
+                        "Project Management",
                     )
-                ok().contentType(MediaTypes.HAL_FORMS_JSON)
-                    .bodyValueAndAwait(outputProjectManagement)
-            } ?: resolveNotFound("Can't update this project management", "Project Management")
+                }
+
+            service
+                .updateProjectManagement(
+                    projectId,
+                    updateProjectManagementData,
+                    requestingContributor,
+                )?.let {
+                    val outputProjectManagement =
+                        it.convertToDto(
+                            requestingContributor,
+                            apiConfigs,
+                            request,
+                        )
+                    ok()
+                        .contentType(MediaTypes.HAL_FORMS_JSON)
+                        .bodyValueAndAwait(outputProjectManagement)
+                } ?: resolveNotFound("Can't update this project management", "Project Management")
         } else {
             resolveBadRequest("Invalid Contributor Token", "Contributor Token")
         }
@@ -263,8 +281,7 @@ private fun ProjectManagement.convertToDto(
     requestingContributor: SimpleContributor?,
     apiConfigs: ApiConfigs,
     request: ServerRequest,
-): ProjectManagementDto =
-    convertToDto().resolveHypermedia(requestingContributor, apiConfigs, request)
+): ProjectManagementDto = convertToDto().resolveHypermedia(requestingContributor, apiConfigs, request)
 
 private fun ProjectManagementDto.convertToDomain(
     admins: Set<SimpleContributor>,
@@ -293,26 +310,14 @@ private fun ProjectManagementDto.convertToDomain(
     )
 }
 
-private fun ManagementConstitution.convertToDto(): ManagementConstitutionDto {
-    return ManagementConstitutionDto(bylaws.map { it.convertToDto() })
-}
+private fun ManagementConstitution.convertToDto(): ManagementConstitutionDto = ManagementConstitutionDto(bylaws.map { it.convertToDto() })
 
-private fun ManagementConstitutionDto.convertToDomain(): ManagementConstitution {
-    return ManagementConstitution(
+private fun ManagementConstitutionDto.convertToDomain(): ManagementConstitution =
+    ManagementConstitution(
         bylaws?.map { it.convertToDomain() } ?: emptyList(),
     )
-}
 
-private fun Bylaw<Any>.convertToDto(): BylawDto {
-    return BylawDto(scope, definition)
-}
-
-private fun BylawDto.convertToDomain(): Bylaw<Any> {
-    return Bylaw(scope, definition)
-}
-
-private fun MultiValueMap<String, String>.toQueryFilter(): ListProjectsManagementFilter {
-    return ListProjectsManagementFilter(
+private fun MultiValueMap<String, String>.toQueryFilter(): ListProjectsManagementFilter =
+    ListProjectsManagementFilter(
         get(ProjectsManagementQueryParams.PROJECT_IDS.param)?.flatMap { it.split(",") },
     )
-}
