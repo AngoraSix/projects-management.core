@@ -143,7 +143,7 @@ class ProjectsManagementHandler(
 
             val outputProjectManagement =
                 service
-                    .createProjectManagement(project)
+                    .createProjectManagement(project, requestingContributor)
                     .convertToDto(requestingContributor, apiConfigs, request)
 
             val selfLink =
@@ -192,7 +192,7 @@ class ProjectsManagementHandler(
 
             val outputProjectManagement =
                 service
-                    .createProjectManagement(project)
+                    .createProjectManagement(project, requestingContributor)
                     .convertToDto(requestingContributor, apiConfigs, request)
 
             val selfLink =

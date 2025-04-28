@@ -1,0 +1,30 @@
+  # https://docs.spring.io/spring-cloud-stream/reference/rabbit/rabbit_overview/putting-it-all-together.html#page-title
+  configs:
+    amqp:
+      bindings:
+        projectManagementCreated: ${A6_PROJECTS_RABBITMQ_BINDINGS_PROJECTMANAGEMENTCREATED:projectManagementCreated}
+
+  spring:
+    cloud:
+      stream:
+        output-bindings: # we need explicit bindings bc we use StreamBridge
+          - ${configs.amqp.bindings.projectManagementCreated}
+        bindings:
+          projectManagementCreated:
+            destination: ${A6_PROJECTS_RABBITMQ_OUTPUT_PROJECTMANAGEMENTCREATED_EXCHANGE:projectManagementCreated}
+        rabbit:
+          bindings:
+            projectManagementCreated:
+              producer:
+                republishToDlq: false
+        binders:
+          a6Rabbit:
+            type: rabbit
+            environment:
+              spring:
+                rabbitmq:
+                  host: ${A6_PROJECTS_RABBITMQ_HOST:localhost}
+                  port: ${A6_PROJECTS_RABBITMQ_PORT:5672}
+                  username: ${A6_PROJECTS_RABBITMQ_USER:guest}
+                  password: ${A6_PROJECTS_RABBITMQ_PASSWORD:guest}
+                  virtual-host: ${A6_PROJECTS_RABBITMQ_VHOST:/}

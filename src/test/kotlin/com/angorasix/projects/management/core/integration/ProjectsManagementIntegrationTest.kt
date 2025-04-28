@@ -42,26 +42,32 @@ class ProjectsManagementIntegrationTest(
     @Autowired val webTestClient: WebTestClient,
     @Autowired val apiConfigs: ApiConfigs,
 ) {
-
     @BeforeAll
-    fun setUp() = runBlocking {
-        initializeMongodb(
-            properties.mongodb.baseJsonFile,
-            mongoTemplate,
-            mapper,
-        )
-    }
+    fun setUp() =
+        runBlocking {
+            initializeMongodb(
+                properties.mongodb.baseJsonFile,
+                mongoTemplate,
+                mapper,
+            )
+        }
 
     @Test
     fun `given base data - when call Get Project Management list - then return all persisted projects`() {
-        webTestClient.get()
+        webTestClient
+            .get()
             .uri("/projects-management")
             .accept(MediaType.APPLICATION_JSON)
             .exchange()
-            .expectStatus().isOk.expectBody()
-            .jsonPath("$.size()").value(greaterThanOrEqualTo(2))
-            .jsonPath("$..id").exists()
-            .jsonPath("$..projectId").value(hasItems("123withSingleSection", "345MultipleSections"))
+            .expectStatus()
+            .isOk
+            .expectBody()
+            .jsonPath("$.size()")
+            .value(greaterThanOrEqualTo(2))
+            .jsonPath("$..id")
+            .exists()
+            .jsonPath("$..projectId")
+            .value(hasItems("123withSingleSection", "345MultipleSections"))
             .jsonPath("$..constitution..bylaws.size()")
             .value(greaterThanOrEqualTo(2))
             .jsonPath("$..status")
@@ -70,35 +76,45 @@ class ProjectsManagementIntegrationTest(
 
     @Test
     fun `given base data - when call Get Project Management list filtering by projectId - then return filtered persisted projects`() {
-        webTestClient.get()
+        webTestClient
+            .get()
             .uri { builder ->
-                builder.path("/projects-management").queryParam(
-                    ProjectsManagementQueryParams.PROJECT_IDS.param,
-                    "123withSingleSection",
-                ).build()
-            }
-            .accept(MediaType.APPLICATION_JSON)
+                builder
+                    .path("/projects-management")
+                    .queryParam(
+                        ProjectsManagementQueryParams.PROJECT_IDS.param,
+                        "123withSingleSection",
+                    ).build()
+            }.accept(MediaType.APPLICATION_JSON)
             .exchange()
-            .expectStatus().isOk.expectBody()
-            .jsonPath("$.size()").value(greaterThanOrEqualTo(1))
-            .jsonPath("$..projectId").value(hasItems("123withSingleSection"))
+            .expectStatus()
+            .isOk
+            .expectBody()
+            .jsonPath("$.size()")
+            .value(greaterThanOrEqualTo(1))
+            .jsonPath("$..projectId")
+            .value(hasItems("123withSingleSection"))
     }
 
     @Test
     fun `given base data - when retrieve Project Management by id - then existing is retrieved`() {
         val initElementQuery = Query()
         initElementQuery.addCriteria(
-            Criteria.where("projectId")
+            Criteria
+                .where("projectId")
                 .`is`("123withSingleSection"),
         )
         val elementId =
             mongoTemplate.findOne(initElementQuery, ProjectManagement::class.java).block()?.id
 
-        webTestClient.get()
+        webTestClient
+            .get()
             .uri("/projects-management/{projectManagementId}", elementId)
             .accept(MediaType.APPLICATION_JSON)
             .exchange()
-            .expectStatus().isOk.expectBody()
+            .expectStatus()
+            .isOk
+            .expectBody()
             .jsonPath("$.id")
             .exists()
             .jsonPath("$.projectId")
@@ -111,28 +127,34 @@ class ProjectsManagementIntegrationTest(
 
     @Test
     fun `given base data - when get non-existing Management - then 404 response`() {
-        webTestClient.get()
+        webTestClient
+            .get()
             .uri("/projects-management/non-existing-id")
             .accept(MediaType.APPLICATION_JSON)
             .exchange()
-            .expectStatus().isNotFound
+            .expectStatus()
+            .isNotFound
     }
 
     @Test
     fun `when post new Project Management - then new project management is persisted`() {
         val projectManagementBody = mockProjectManagementDto()
-        webTestClient.post()
+        webTestClient
+            .post()
             .uri("/projects-management")
             .accept(MediaType.APPLICATION_JSON)
             .contentType(MediaTypes.HAL_FORMS_JSON)
             .body(
                 Mono.just(projectManagementBody),
                 ProjectManagementDto::class.java,
-            )
-            .exchange()
-            .expectStatus().isCreated.expectBody()
-            .jsonPath("$.id").exists()
-            .jsonPath("$.projectId").value(startsWith("mockedProjectId"))
+            ).exchange()
+            .expectStatus()
+            .isCreated
+            .expectBody()
+            .jsonPath("$.id")
+            .exists()
+            .jsonPath("$.projectId")
+            .value(startsWith("mockedProjectId"))
             .jsonPath("$.constitution.bylaws.size()")
             .value(greaterThanOrEqualTo(2))
             .jsonPath("$.status")
@@ -142,33 +164,44 @@ class ProjectsManagementIntegrationTest(
     @Test
     fun `given new persisted management - when retrieved - then data matches`() {
         val projectManagementBody = mockProjectManagementDto()
-        val newProjectManagement = webTestClient.post()
-            .uri("/projects-management")
-            .accept(MediaType.APPLICATION_JSON)
-            .contentType(MediaTypes.HAL_FORMS_JSON)
-            .body(
-                Mono.just(projectManagementBody),
-                ProjectManagementDto::class.java,
-            )
-            .exchange()
-            .expectStatus().isCreated
-            .expectBody(ProjectManagementDto::class.java)
-            .returnResult().responseBody ?: fail("Create operation retrieved empty response")
+        val newProjectManagement =
+            webTestClient
+                .post()
+                .uri("/projects-management")
+                .accept(MediaType.APPLICATION_JSON)
+                .contentType(MediaTypes.HAL_FORMS_JSON)
+                .body(
+                    Mono.just(projectManagementBody),
+                    ProjectManagementDto::class.java,
+                ).exchange()
+                .expectStatus()
+                .isCreated
+                .expectBody(ProjectManagementDto::class.java)
+                .returnResult()
+                .responseBody ?: fail("Create operation retrieved empty response")
 
-        webTestClient.get()
+        webTestClient
+            .get()
             .uri("/projects-management/${newProjectManagement.id}")
             .accept(MediaType.APPLICATION_JSON)
             .exchange()
-            .expectStatus().isOk.expectBody()
-            .jsonPath("$.id").isEqualTo(newProjectManagement.id!!)
-            .jsonPath("$.projectId").value(startsWith("mockedProjectId"))
-            .jsonPath("$.status").isEqualTo("STARTUP")
-            .jsonPath("$.constitution.bylaws.size()").isEqualTo(2)
+            .expectStatus()
+            .isOk
+            .expectBody()
+            .jsonPath("$.id")
+            .isEqualTo(newProjectManagement.id!!)
+            .jsonPath("$.projectId")
+            .value(startsWith("mockedProjectId"))
+            .jsonPath("$.status")
+            .isEqualTo("STARTUP")
+            .jsonPath("$.constitution.bylaws.size()")
+            .isEqualTo(2)
     }
 
     @Test
     fun `when post new Project Management without sections - then Created response`() {
-        val projectManagementBody = """
+        val projectManagementBody =
+            """
             {
                 "projectId": "projectId456",
                 "constitution": {
@@ -181,56 +214,64 @@ class ProjectsManagementIntegrationTest(
                 },
                 "status": "STARTUP"
             }
-        """.trimIndent()
-        webTestClient.post()
+            """.trimIndent()
+        webTestClient
+            .post()
             .uri("/projects-management")
             .accept(MediaType.APPLICATION_JSON)
             .contentType(MediaTypes.HAL_FORMS_JSON)
             .body(
                 Mono.just(projectManagementBody),
                 String::class.java,
-            )
-            .exchange()
-            .expectStatus().isCreated
+            ).exchange()
+            .expectStatus()
+            .isCreated
     }
 
     @Test
     fun `when post new Project Management without constitution - then Bad Request response`() {
-        val projectManagementBody = """
+        val projectManagementBody =
+            """
             {
               "projectId": "projectId456",
               "constitution": null
             }
-        """.trimIndent()
-        webTestClient.post()
+            """.trimIndent()
+        webTestClient
+            .post()
             .uri("/projects-management")
             .contentType(MediaTypes.HAL_FORMS_JSON)
             .accept(MediaType.APPLICATION_JSON)
             .body(
                 Mono.just(projectManagementBody),
                 String::class.java,
-            )
-            .exchange()
-            .expectStatus().isBadRequest
+            ).exchange()
+            .expectStatus()
+            .isBadRequest
             .expectBody()
-            .jsonPath("$.errorCode").isEqualTo("PROJECT_MANAGEMENT_INVALID")
-            .jsonPath("$.error").exists()
-            .jsonPath("$.status").isEqualTo(HttpStatus.BAD_REQUEST.value())
-            .jsonPath("$.message").isEqualTo("ProjectManagement constitution expected")
+            .jsonPath("$.errorCode")
+            .isEqualTo("PROJECT_MANAGEMENT_INVALID")
+            .jsonPath("$.error")
+            .exists()
+            .jsonPath("$.status")
+            .isEqualTo(HttpStatus.BAD_REQUEST.value())
+            .jsonPath("$.message")
+            .isEqualTo("ProjectManagement constitution expected")
     }
 
     @Test
     fun `when post new Project Management with empty sections - then Bad Request response`() {
         val projectManagementBody = mockProjectManagementDto()
-        webTestClient.post()
+        webTestClient
+            .post()
             .uri("/projects-management")
             .accept(MediaType.APPLICATION_JSON)
             .contentType(MediaTypes.HAL_FORMS_JSON)
             .body(
                 Mono.just(projectManagementBody),
                 ProjectManagementDto::class.java,
-            )
-            .exchange()
-            .expectStatus().isCreated
+            ).exchange()
+            .expectStatus()
+            .isCreated
     }
 }

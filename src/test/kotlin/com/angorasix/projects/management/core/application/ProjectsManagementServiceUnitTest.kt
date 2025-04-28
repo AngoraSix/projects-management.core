@@ -1,12 +1,15 @@
 package com.angorasix.projects.management.core.application
 
+import com.angorasix.commons.domain.SimpleContributor
 import com.angorasix.projects.management.core.domain.management.ManagementStatus
 import com.angorasix.projects.management.core.domain.management.ProjectManagement
 import com.angorasix.projects.management.core.domain.management.ProjectManagementRepository
+import com.angorasix.projects.management.core.infrastructure.applicationevents.ProjectManagementCreatedApplicationEvent
 import com.angorasix.projects.management.core.infrastructure.queryfilters.ListProjectsManagementFilter
 import com.angorasix.projects.management.core.utils.mockConstitution
 import io.mockk.coEvery
 import io.mockk.coVerify
+import io.mockk.every
 import io.mockk.impl.annotations.MockK
 import io.mockk.junit5.MockKExtension
 import kotlinx.coroutines.flow.flowOf
@@ -15,6 +18,7 @@ import org.assertj.core.api.AssertionsForClassTypes.assertThat
 import org.junit.jupiter.api.BeforeEach
 import org.junit.jupiter.api.Test
 import org.junit.jupiter.api.extension.ExtendWith
+import org.springframework.context.ApplicationEventPublisher
 
 @ExtendWith(MockKExtension::class)
 class ProjectsManagementServiceUnitTest {
@@ -23,9 +27,12 @@ class ProjectsManagementServiceUnitTest {
     @MockK
     private lateinit var repository: ProjectManagementRepository
 
+    @MockK
+    private lateinit var events: ApplicationEventPublisher
+
     @BeforeEach
     fun init() {
-        service = ProjectsManagementService(repository)
+        service = ProjectsManagementService(repository, events)
     }
 
     @Test
@@ -33,12 +40,13 @@ class ProjectsManagementServiceUnitTest {
     @kotlinx.coroutines.ExperimentalCoroutinesApi
     fun `given existing projects - when request find projects - then receive projects`() =
         runTest {
-            val mockedProjectManagement = ProjectManagement(
-                "mockedProjectId",
-                emptySet(),
-                mockConstitution(),
-                ManagementStatus.STARTUP,
-            )
+            val mockedProjectManagement =
+                ProjectManagement(
+                    "mockedProjectId",
+                    emptySet(),
+                    mockConstitution(),
+                    ManagementStatus.STARTUP,
+                )
             val filter = ListProjectsManagementFilter()
             coEvery { repository.findUsingFilter(filter) } returns flowOf(mockedProjectManagement)
 
@@ -56,12 +64,13 @@ class ProjectsManagementServiceUnitTest {
     fun `given existing project management - when find single project managements - then service retrieves mono with project management`() =
         runTest {
             val mockedProjectManagementId = "id1"
-            val mockedProjectManagement = ProjectManagement(
-                "mockedProjectId",
-                emptySet(),
-                mockConstitution(),
-                ManagementStatus.STARTUP,
-            )
+            val mockedProjectManagement =
+                ProjectManagement(
+                    "mockedProjectId",
+                    emptySet(),
+                    mockConstitution(),
+                    ManagementStatus.STARTUP,
+                )
             coEvery { repository.findById(mockedProjectManagementId) } returns mockedProjectManagement
             val outputProjectManagement =
                 service.findSingleProjectManagement(mockedProjectManagementId)
@@ -74,21 +83,25 @@ class ProjectsManagementServiceUnitTest {
     @kotlinx.coroutines.ExperimentalCoroutinesApi
     fun `when create project management - then service retrieve saved project management`() =
         runTest {
-            val mockedProjectManagement = ProjectManagement(
-                "mockedProjectId",
-                emptySet(),
-                mockConstitution(),
-                ManagementStatus.STARTUP,
-            )
-            val savedProjectManagement = ProjectManagement(
-                "savedProjectId",
-                emptySet(),
-                mockConstitution(),
-                ManagementStatus.STARTUP,
-            )
+            val mockedRequestingContributor = SimpleContributor("mockedContributorId1", emptySet())
+            val mockedProjectManagement =
+                ProjectManagement(
+                    "mockedProjectId",
+                    emptySet(),
+                    mockConstitution(),
+                    ManagementStatus.STARTUP,
+                )
+            val savedProjectManagement =
+                ProjectManagement(
+                    "savedProjectId",
+                    emptySet(),
+                    mockConstitution(),
+                    ManagementStatus.STARTUP,
+                )
             coEvery { repository.save(mockedProjectManagement) } returns savedProjectManagement
+            every { events.publishEvent(ofType<ProjectManagementCreatedApplicationEvent>()) } returns Unit
             val outputProjectManagement =
-                service.createProjectManagement(mockedProjectManagement)
+                service.createProjectManagement(mockedProjectManagement, mockedRequestingContributor)
             assertThat(outputProjectManagement).isSameAs(savedProjectManagement)
             coVerify { repository.save(mockedProjectManagement) }
         }
@@ -162,21 +175,25 @@ class ProjectsManagementServiceUnitTest {
     @kotlinx.coroutines.ExperimentalCoroutinesApi
     fun whenUpdateProjectManagement_thenServiceRetrieveUpdatedProjectManagement() =
         runTest {
-            val mockedProjectManagement = ProjectManagement(
-                "mockedId",
-                emptySet(),
-                mockConstitution(),
-                ManagementStatus.STARTUP,
-            )
-            val updatedProjectManagement = ProjectManagement(
-                "mockedId",
-                emptySet(),
-                mockConstitution(),
-                ManagementStatus.OPERATIONAL,
-            )
+            val mockedRequestingContributor = SimpleContributor("mockedContributorId1", emptySet())
+            val mockedProjectManagement =
+                ProjectManagement(
+                    "mockedId",
+                    emptySet(),
+                    mockConstitution(),
+                    ManagementStatus.STARTUP,
+                )
+            val updatedProjectManagement =
+                ProjectManagement(
+                    "mockedId",
+                    emptySet(),
+                    mockConstitution(),
+                    ManagementStatus.OPERATIONAL,
+                )
             coEvery { repository.save(mockedProjectManagement) } returns updatedProjectManagement
+            every { events.publishEvent(ofType<ProjectManagementCreatedApplicationEvent>()) } returns Unit
             val outputProjectManagement =
-                service.createProjectManagement(mockedProjectManagement)
+                service.createProjectManagement(mockedProjectManagement, mockedRequestingContributor)
             assertThat(outputProjectManagement).isSameAs(updatedProjectManagement)
             coVerify { repository.save(mockedProjectManagement) }
         }

@@ -14,26 +14,31 @@ import org.springframework.data.mongodb.core.mapping.Document
  * @author rozagerardo
  */
 @Document
-data class ProjectManagement @PersistenceCreator private constructor(
-    @field:Id val id: String?,
-    @field:Indexed(unique = true) val projectId: String,
-    val admins: Set<SimpleContributor> = emptySet(),
-    val constitution: ManagementConstitution,
-    var status: ManagementStatus,
-) {
-    constructor(
-        projectId: String,
-        admins: Set<SimpleContributor>,
-        constitution: ManagementConstitution,
-        status: ManagementStatus,
-    ) : this(
-        null,
-        projectId,
-        admins,
-        constitution,
-        status,
-    )
+data class ProjectManagement
+    @PersistenceCreator
+    private constructor(
+        @field:Id val id: String?,
+        @field:Indexed(unique = true) val projectId: String,
+        val admins: Set<SimpleContributor> = emptySet(),
+        val constitution: ManagementConstitution,
+        var status: ManagementStatus,
+    ) {
+        constructor(
+            projectId: String,
+            admins: Set<SimpleContributor>,
+            constitution: ManagementConstitution,
+            status: ManagementStatus,
+        ) : this(
+            null,
+            projectId,
+            admins,
+            constitution,
+            status,
+        )
 
-    fun isAdministeredBy(simpleContributor: SimpleContributor): Boolean =
-        admins.any { it.contributorId == simpleContributor.contributorId }
-}
+        fun isAdministeredBy(simpleContributor: SimpleContributor): Boolean =
+            admins.any {
+                it.contributorId ==
+                    simpleContributor.contributorId
+            }
+    }

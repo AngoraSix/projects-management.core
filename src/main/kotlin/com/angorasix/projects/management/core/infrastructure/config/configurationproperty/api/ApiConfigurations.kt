@@ -1,8 +1,8 @@
 package com.angorasix.projects.management.core.infrastructure.config.configurationproperty.api
 
+import com.angorasix.commons.infrastructure.config.configurationproperty.api.Route
 import org.springframework.boot.context.properties.ConfigurationProperties
 import org.springframework.boot.context.properties.NestedConfigurationProperty
-import org.springframework.http.HttpMethod
 
 /**
  * <p>
@@ -15,9 +15,10 @@ import org.springframework.http.HttpMethod
 data class ApiConfigs(
     @NestedConfigurationProperty
     var routes: RoutesConfigs,
-
     @NestedConfigurationProperty
     var basePaths: BasePathConfigs,
+    @NestedConfigurationProperty
+    var managementActions: ManagementActions,
 )
 
 data class BasePathConfigs(
@@ -37,11 +38,8 @@ data class RoutesConfigs(
     val getProjectManagementByProjectId: Route,
 )
 
-data class Route(
-    val name: String,
-    val basePaths: List<String>,
-    val method: HttpMethod,
-    val path: String,
-) {
-    fun resolvePath(): String = basePaths.joinToString("").plus(path)
-}
+data class ManagementActions(
+    val getProjectManagementByProjectId: String,
+    val updateProjectManagement: String,
+    val createProjectManagementByProjectId: String,
+)
