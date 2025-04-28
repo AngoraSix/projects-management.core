@@ -27,7 +27,6 @@ import reactor.core.publisher.Flux
 @ExperimentalCoroutinesApi
 @ExtendWith(MockKExtension::class)
 class ProjectManagementFilterRepositoryImplUnitTest {
-
     private lateinit var filterRepoImpl: ProjectManagementFilterRepository
 
     @MockK

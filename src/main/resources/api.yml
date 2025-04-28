@@ -55,3 +55,7 @@ configs:
           - ${configs.api.routes.baseByProjectIdCrudRoute}
         method: GET
         path: "/"
+    managementActions:
+      getProjectManagementByProjectId: getProjectManagementByProjectId
+      updateProjectManagement: updateProjectManagement
+      createProjectManagementByProjectId: createProjectManagementByProjectId

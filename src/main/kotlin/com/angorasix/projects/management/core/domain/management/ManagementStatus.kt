@@ -8,5 +8,7 @@ package com.angorasix.projects.management.core.domain.management
  * @author rozagerardo
  */
 enum class ManagementStatus {
-    IDEA, STARTUP, OPERATIONAL
+    IDEA,
+    STARTUP,
+    OPERATIONAL,
 }
