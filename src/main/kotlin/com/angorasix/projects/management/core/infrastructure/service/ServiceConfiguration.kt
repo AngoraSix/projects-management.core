@@ -5,6 +5,7 @@ import com.angorasix.projects.management.core.domain.management.ProjectManagemen
 import com.angorasix.projects.management.core.infrastructure.applicationevents.ApplicationEventsListener
 import com.angorasix.projects.management.core.infrastructure.config.configurationproperty.amqp.AmqpConfigurations
 import com.angorasix.projects.management.core.infrastructure.config.configurationproperty.api.ApiConfigs
+import com.angorasix.projects.management.core.messaging.listener.handler.MessagingHandler
 import com.angorasix.projects.management.core.messaging.publisher.MessagePublisher
 import com.angorasix.projects.management.core.presentation.handler.ProjectsManagementHandler
 import com.angorasix.projects.management.core.presentation.router.ProjectsManagementRouter
@@ -41,4 +42,7 @@ class ServiceConfiguration {
 
     @Bean
     fun applicationEventsListener(messagePublisher: MessagePublisher) = ApplicationEventsListener(messagePublisher)
+
+    @Bean
+    fun messagingHandler(service: ProjectsManagementService) = MessagingHandler(service)
 }

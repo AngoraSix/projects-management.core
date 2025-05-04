@@ -1,7 +1,7 @@
 package com.angorasix.projects.management.core.integration.docs
 
-import com.angorasix.commons.domain.projectmanagement.core.Bylaw
 import com.angorasix.projects.management.core.ProjectsManagementCoreApplication
+import com.angorasix.projects.management.core.domain.management.Bylaw
 import com.angorasix.projects.management.core.domain.management.ManagementConstitution
 import com.angorasix.projects.management.core.domain.management.ManagementStatus
 import com.angorasix.projects.management.core.domain.management.ProjectManagement

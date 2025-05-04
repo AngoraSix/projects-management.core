@@ -1,6 +1,6 @@
 package com.angorasix.projects.management.core.presentation.handler
 
-import com.angorasix.commons.domain.SimpleContributor
+import com.angorasix.commons.domain.A6Contributor
 import com.angorasix.commons.reactive.presentation.mappings.addLink
 import com.angorasix.commons.reactive.presentation.mappings.addSelfLink
 import com.angorasix.commons.reactive.presentation.mappings.generateLink
@@ -17,7 +17,7 @@ import org.springframework.web.reactive.function.server.ServerRequest
  */
 
 fun ProjectManagementDto.resolveHypermedia(
-    requestingContributor: SimpleContributor?,
+    requestingContributor: A6Contributor?,
     apiConfigs: ApiConfigs,
     request: ServerRequest,
 ): ProjectManagementDto {
@@ -50,7 +50,7 @@ fun ProjectManagementDto.resolveHypermedia(
 
 fun resolveCreateByProjectIdLink(
     projectId: String,
-    requestingContributor: SimpleContributor?,
+    requestingContributor: A6Contributor?,
     apiConfigs: ApiConfigs,
     request: ServerRequest,
 ): Links {
