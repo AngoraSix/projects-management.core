@@ -1,6 +1,6 @@
 package com.angorasix.projects.management.core.infrastructure.persistence.repository
 
-import com.angorasix.commons.domain.SimpleContributor
+import com.angorasix.commons.domain.A6Contributor
 import com.angorasix.projects.management.core.domain.management.ProjectManagement
 import com.angorasix.projects.management.core.infrastructure.queryfilters.ListProjectsManagementFilter
 import kotlinx.coroutines.flow.Flow
@@ -16,6 +16,6 @@ interface ProjectManagementFilterRepository {
 
     suspend fun findForContributorUsingFilter(
         filter: ListProjectsManagementFilter,
-        requestingContributor: SimpleContributor?,
+        requestingContributor: A6Contributor?,
     ): ProjectManagement?
 }

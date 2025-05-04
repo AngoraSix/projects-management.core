@@ -1,10 +1,8 @@
 package com.angorasix.projects.management.core.presentation.handler
 
-import com.angorasix.commons.domain.SimpleContributor
+import com.angorasix.commons.domain.A6Contributor
 import com.angorasix.commons.infrastructure.constants.AngoraSixInfrastructure
 import com.angorasix.commons.presentation.dto.IsAdminDto
-import com.angorasix.commons.presentation.dto.projectmanagement.convertToDomain
-import com.angorasix.commons.presentation.dto.projectmanagement.convertToDto
 import com.angorasix.commons.reactive.presentation.error.resolveBadRequest
 import com.angorasix.commons.reactive.presentation.error.resolveNotFound
 import com.angorasix.projects.management.core.application.ProjectsManagementService
@@ -15,6 +13,8 @@ import com.angorasix.projects.management.core.infrastructure.queryfilters.ListPr
 import com.angorasix.projects.management.core.presentation.dto.ManagementConstitutionDto
 import com.angorasix.projects.management.core.presentation.dto.ProjectManagementDto
 import com.angorasix.projects.management.core.presentation.dto.ProjectsManagementQueryParams
+import com.angorasix.projects.management.core.presentation.dto.convertToDomain
+import com.angorasix.projects.management.core.presentation.dto.convertToDto
 import kotlinx.coroutines.flow.map
 import org.springframework.hateoas.IanaLinkRelations
 import org.springframework.hateoas.MediaTypes
@@ -50,7 +50,7 @@ class ProjectsManagementHandler(
         return service
             .findProjectManagements(request.queryParams().toQueryFilter())
             .map {
-                it.convertToDto(requestingContributor as? SimpleContributor, apiConfigs, request)
+                it.convertToDto(requestingContributor as? A6Contributor, apiConfigs, request)
             }.let {
                 ok().contentType(MediaTypes.HAL_FORMS_JSON).bodyAndAwait(it)
             }
@@ -70,7 +70,7 @@ class ProjectsManagementHandler(
         service.findSingleProjectManagement(projectManagementId)?.let {
             val outputProjectManagement =
                 it.convertToDto(
-                    requestingContributor as? SimpleContributor,
+                    requestingContributor as? A6Contributor,
                     apiConfigs,
                     request,
                 )
@@ -90,7 +90,7 @@ class ProjectsManagementHandler(
      */
     suspend fun getProjectManagementByProjectId(request: ServerRequest): ServerResponse {
         val requestingContributor =
-            request.attributes()[AngoraSixInfrastructure.REQUEST_ATTRIBUTE_CONTRIBUTOR_KEY] as? SimpleContributor
+            request.attributes()[AngoraSixInfrastructure.REQUEST_ATTRIBUTE_CONTRIBUTOR_KEY] as? A6Contributor
         val projectId = request.pathVariable("projectId")
         service.findSingleProjectManagementByProjectId(projectId)?.let {
             val outputProjectManagement =
@@ -121,16 +121,15 @@ class ProjectsManagementHandler(
         val requestingContributor =
             request.attributes()[AngoraSixInfrastructure.REQUEST_ATTRIBUTE_CONTRIBUTOR_KEY]
 
-        return if (requestingContributor is SimpleContributor) {
+        return if (requestingContributor is A6Contributor) {
             val project =
                 try {
                     request
                         .awaitBody<ProjectManagementDto>()
                         .convertToDomain(
                             setOf(
-                                SimpleContributor(
+                                A6Contributor(
                                     requestingContributor.contributorId,
-                                    emptySet(),
                                 ),
                             ),
                         )
@@ -167,7 +166,7 @@ class ProjectsManagementHandler(
         val requestingContributor =
             request.attributes()[AngoraSixInfrastructure.REQUEST_ATTRIBUTE_CONTRIBUTOR_KEY]
 
-        return if (requestingContributor is SimpleContributor) {
+        return if (requestingContributor is A6Contributor) {
             val projectId = request.pathVariable("projectId")
 
             val project =
@@ -176,9 +175,8 @@ class ProjectsManagementHandler(
                         .awaitBody<ProjectManagementDto>()
                         .convertToDomain(
                             setOf(
-                                SimpleContributor(
+                                A6Contributor(
                                     requestingContributor.contributorId,
-                                    emptySet(),
                                 ),
                             ),
                             projectId,
@@ -216,7 +214,7 @@ class ProjectsManagementHandler(
         val requestingContributor =
             request.attributes()[AngoraSixInfrastructure.REQUEST_ATTRIBUTE_CONTRIBUTOR_KEY]
 
-        return if (requestingContributor is SimpleContributor) {
+        return if (requestingContributor is A6Contributor) {
             val projectId = request.pathVariable("id")
 
             val updateProjectManagementData =
@@ -263,7 +261,7 @@ class ProjectsManagementHandler(
         val requestingContributor =
             request.attributes()[AngoraSixInfrastructure.REQUEST_ATTRIBUTE_CONTRIBUTOR_KEY]
         val projectManagementId = request.pathVariable("id")
-        return if (requestingContributor is SimpleContributor) {
+        return if (requestingContributor is A6Contributor) {
             service.administeredProjectManagement(projectManagementId, requestingContributor)?.let {
                 val result = it.isAdministeredBy(requestingContributor)
                 ok().contentType(MediaTypes.HAL_FORMS_JSON).bodyValueAndAwait(IsAdminDto(result))
@@ -278,13 +276,13 @@ private fun ProjectManagement.convertToDto(): ProjectManagementDto =
     ProjectManagementDto(projectId, admins, constitution.convertToDto(), status, id)
 
 private fun ProjectManagement.convertToDto(
-    requestingContributor: SimpleContributor?,
+    requestingContributor: A6Contributor?,
     apiConfigs: ApiConfigs,
     request: ServerRequest,
 ): ProjectManagementDto = convertToDto().resolveHypermedia(requestingContributor, apiConfigs, request)
 
 private fun ProjectManagementDto.convertToDomain(
-    admins: Set<SimpleContributor>,
+    admins: Set<A6Contributor>,
     paramProjectId: String? = null,
 ): ProjectManagement {
     if (projectId != null && paramProjectId != null && projectId != paramProjectId) {
@@ -310,11 +308,12 @@ private fun ProjectManagementDto.convertToDomain(
     )
 }
 
-private fun ManagementConstitution.convertToDto(): ManagementConstitutionDto = ManagementConstitutionDto(bylaws.map { it.convertToDto() })
+private fun ManagementConstitution.convertToDto(): ManagementConstitutionDto =
+    ManagementConstitutionDto(bylaws.mapValues { (_, b) -> b.convertToDto() })
 
 private fun ManagementConstitutionDto.convertToDomain(): ManagementConstitution =
     ManagementConstitution(
-        bylaws?.map { it.convertToDomain() } ?: emptyList(),
+        bylaws?.mapValues { (_, b) -> b.convertToDomain() } ?: emptyMap(),
     )
 
 private fun MultiValueMap<String, String>.toQueryFilter(): ListProjectsManagementFilter =

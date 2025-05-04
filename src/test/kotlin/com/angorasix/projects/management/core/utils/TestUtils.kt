@@ -1,12 +1,12 @@
 package com.angorasix.projects.management.core.utils
 
-import com.angorasix.commons.domain.SimpleContributor
-import com.angorasix.commons.domain.projectmanagement.core.Bylaw
-import com.angorasix.commons.domain.projectmanagement.core.BylawWellknownScope
-import com.angorasix.commons.presentation.dto.projectmanagement.BylawDto
+import com.angorasix.commons.domain.A6Contributor
+import com.angorasix.projects.management.core.domain.management.Bylaw
+import com.angorasix.projects.management.core.domain.management.BylawWellknownScope
 import com.angorasix.projects.management.core.domain.management.ManagementConstitution
 import com.angorasix.projects.management.core.domain.management.ManagementStatus
 import com.angorasix.projects.management.core.domain.management.ProjectManagement
+import com.angorasix.projects.management.core.presentation.dto.BylawDto
 import com.angorasix.projects.management.core.presentation.dto.ManagementConstitutionDto
 import com.angorasix.projects.management.core.presentation.dto.ProjectManagementDto
 
@@ -18,7 +18,7 @@ import com.angorasix.projects.management.core.presentation.dto.ProjectManagement
  */
 fun mockProjectManagement(
     modifier: String = "",
-    admins: Set<SimpleContributor> = emptySet(),
+    admins: Set<A6Contributor> = emptySet(),
 ): ProjectManagement =
     ProjectManagement(
         "mockedProjectId$modifier",
@@ -29,12 +29,12 @@ fun mockProjectManagement(
 
 fun mockConstitution(): ManagementConstitution =
     ManagementConstitution(
-        listOf(
-            Bylaw(
-                BylawWellknownScope.OPERATION_CORE_RETRIBUTION_MODEL.name,
-                "CAPS",
-            ),
-            Bylaw(BylawWellknownScope.OWNERSHIP_MECHANISM.name, "CAPS-BASED"),
+        mapOf(
+            BylawWellknownScope.OPERATION_CORE_RETRIBUTION_MODEL.name to
+                Bylaw(
+                    "CAPS",
+                ),
+            BylawWellknownScope.OWNERSHIP_MECHANISM.name to Bylaw("CAPS-BASED"),
         ),
     )
 
@@ -53,11 +53,11 @@ private fun getRandomString(length: Int): String {
 
 fun mockConstitutionDto(): ManagementConstitutionDto =
     ManagementConstitutionDto(
-        listOf(
-            BylawDto(
-                BylawWellknownScope.OPERATION_CORE_RETRIBUTION_MODEL.name,
-                "CAPS",
-            ),
-            BylawDto(BylawWellknownScope.OWNERSHIP_MECHANISM.name, "CAPS-BASED"),
+        mapOf(
+            BylawWellknownScope.OPERATION_CORE_RETRIBUTION_MODEL.name to
+                BylawDto(
+                    "CAPS",
+                ),
+            BylawWellknownScope.OWNERSHIP_MECHANISM.name to BylawDto("CAPS-BASED"),
         ),
     )

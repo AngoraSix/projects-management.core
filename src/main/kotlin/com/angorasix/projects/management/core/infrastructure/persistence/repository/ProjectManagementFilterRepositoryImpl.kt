@@ -1,6 +1,6 @@
 package com.angorasix.projects.management.core.infrastructure.persistence.repository
 
-import com.angorasix.commons.domain.SimpleContributor
+import com.angorasix.commons.domain.A6Contributor
 import com.angorasix.projects.management.core.domain.management.ProjectManagement
 import com.angorasix.projects.management.core.infrastructure.queryfilters.ListProjectsManagementFilter
 import kotlinx.coroutines.flow.Flow
@@ -24,14 +24,14 @@ class ProjectManagementFilterRepositoryImpl(
 
     override suspend fun findForContributorUsingFilter(
         filter: ListProjectsManagementFilter,
-        requestingContributor: SimpleContributor?,
+        requestingContributor: A6Contributor?,
     ): ProjectManagement? =
         mongoOps
             .find(filter.toQuery(requestingContributor), ProjectManagement::class.java)
             .awaitFirstOrNull()
 }
 
-private fun ListProjectsManagementFilter.toQuery(requestingContributor: SimpleContributor? = null): Query {
+private fun ListProjectsManagementFilter.toQuery(requestingContributor: A6Contributor? = null): Query {
     val query = Query()
 
     ids?.let { query.addCriteria(where("_id").`in`(it as Collection<Any>)) }

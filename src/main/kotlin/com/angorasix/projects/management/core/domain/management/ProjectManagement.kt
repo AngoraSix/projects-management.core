@@ -1,6 +1,6 @@
 package com.angorasix.projects.management.core.domain.management
 
-import com.angorasix.commons.domain.SimpleContributor
+import com.angorasix.commons.domain.A6Contributor
 import org.springframework.data.annotation.Id
 import org.springframework.data.annotation.PersistenceCreator
 import org.springframework.data.mongodb.core.index.Indexed
@@ -19,13 +19,13 @@ data class ProjectManagement
     private constructor(
         @field:Id val id: String?,
         @field:Indexed(unique = true) val projectId: String,
-        val admins: Set<SimpleContributor> = emptySet(),
+        val admins: Set<A6Contributor> = emptySet(),
         val constitution: ManagementConstitution,
         var status: ManagementStatus,
     ) {
         constructor(
             projectId: String,
-            admins: Set<SimpleContributor>,
+            admins: Set<A6Contributor>,
             constitution: ManagementConstitution,
             status: ManagementStatus,
         ) : this(
@@ -36,7 +36,7 @@ data class ProjectManagement
             status,
         )
 
-        fun isAdministeredBy(simpleContributor: SimpleContributor): Boolean =
+        fun isAdministeredBy(simpleContributor: A6Contributor): Boolean =
             admins.any {
                 it.contributorId ==
                     simpleContributor.contributorId

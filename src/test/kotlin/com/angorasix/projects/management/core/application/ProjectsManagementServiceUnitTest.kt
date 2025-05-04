@@ -1,6 +1,6 @@
 package com.angorasix.projects.management.core.application
 
-import com.angorasix.commons.domain.SimpleContributor
+import com.angorasix.commons.domain.A6Contributor
 import com.angorasix.projects.management.core.domain.management.ManagementStatus
 import com.angorasix.projects.management.core.domain.management.ProjectManagement
 import com.angorasix.projects.management.core.domain.management.ProjectManagementRepository
@@ -83,7 +83,7 @@ class ProjectsManagementServiceUnitTest {
     @kotlinx.coroutines.ExperimentalCoroutinesApi
     fun `when create project management - then service retrieve saved project management`() =
         runTest {
-            val mockedRequestingContributor = SimpleContributor("mockedContributorId1", emptySet())
+            val mockedRequestingContributor = A6Contributor("mockedContributorId1")
             val mockedProjectManagement =
                 ProjectManagement(
                     "mockedProjectId",
@@ -118,17 +118,17 @@ class ProjectsManagementServiceUnitTest {
     //         } just Runs
     //
     //
-    //         val mockedSimpleContributor = SimpleContributor("1", emptySet())
+    //         val mockedA6Contributor = A6Contributor("1", emptySet())
     //
     //         val mockedUpdateProjectManagement = ProjectManagement(
     //             "mockedProjectId",
-    //             setOf(mockedSimpleContributor),
+    //             setOf(mockedA6Contributor),
     //             mockConstitution(),
     //             ManagementStatus.OPERATIONAL,
     //         )
     //         val savedProjectManagement = ProjectManagement(
     //             "savedMockedProjectId",
-    //             setOf(mockedSimpleContributor),
+    //             setOf(mockedA6Contributor),
     //             mockConstitution(),
     //             ManagementStatus.STARTUP,
     //         )
@@ -140,14 +140,14 @@ class ProjectsManagementServiceUnitTest {
     //                             setOf("1"),
     //                             listOf("id1")
     //                     ),
-    //                     mockedSimpleContributor,
+    //                     mockedA6Contributor,
     //             )
     //         } returns mockedExistingProjectManagement
     //
     //         coEvery { repository.save(any()) } returns savedProjectManagement
     //
     //         val outputProjectManagement =
-    //             service.updateProjectManagement("id1", mockedUpdateProjectManagement, mockedSimpleContributor)
+    //             service.updateProjectManagement("id1", mockedUpdateProjectManagement, mockedA6Contributor)
     //
     //         assertThat(outputProjectManagement).isSameAs(savedProjectManagement)
     //
@@ -158,7 +158,7 @@ class ProjectsManagementServiceUnitTest {
     //                             setOf("1"),
     //                             listOf("id1")
     //                     ),
-    //                     mockedSimpleContributor,
+    //                     mockedA6Contributor,
     //             )
     //             repository.save(any())
     //         }
@@ -175,7 +175,7 @@ class ProjectsManagementServiceUnitTest {
     @kotlinx.coroutines.ExperimentalCoroutinesApi
     fun whenUpdateProjectManagement_thenServiceRetrieveUpdatedProjectManagement() =
         runTest {
-            val mockedRequestingContributor = SimpleContributor("mockedContributorId1", emptySet())
+            val mockedRequestingContributor = A6Contributor("mockedContributorId1")
             val mockedProjectManagement =
                 ProjectManagement(
                     "mockedId",
