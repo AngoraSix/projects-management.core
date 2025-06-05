@@ -5,7 +5,7 @@ import com.angorasix.projects.management.core.domain.management.ProjectManagemen
 
 data class ContributorRegisteredApplicationEvent(
     val projectManagement: ProjectManagement,
-    val participatesInOwnership: Boolean,
+    val ownershipCurrency: String?,
     val managementFinancialCurrencies: Set<String>,
     val registeredContributorId: String,
     val requestingContributor: A6Contributor,
