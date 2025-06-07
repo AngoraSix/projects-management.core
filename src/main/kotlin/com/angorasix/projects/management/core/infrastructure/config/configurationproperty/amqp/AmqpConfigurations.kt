@@ -12,4 +12,5 @@ data class AmqpConfigurations(
 class BindingConfigs(
     val projectManagementCreated: String,
     val managementContributorRegistered: String,
+    val managementTasksClosed: String,
 )

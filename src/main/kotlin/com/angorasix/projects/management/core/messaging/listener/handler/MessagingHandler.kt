@@ -5,6 +5,7 @@ import com.angorasix.commons.infrastructure.intercommunication.A6DomainResource
 import com.angorasix.commons.infrastructure.intercommunication.A6InfraTopics
 import com.angorasix.commons.infrastructure.intercommunication.club.ClubMemberJoined
 import com.angorasix.commons.infrastructure.intercommunication.messaging.A6InfraMessageDto
+import com.angorasix.commons.infrastructure.intercommunication.tasks.TasksClosed
 import com.angorasix.projects.management.core.application.ProjectsManagementService
 import kotlinx.coroutines.runBlocking
 
@@ -22,6 +23,20 @@ class MessagingHandler(
                 service.processManagementMemberJoined(
                     projectManagementId = managementId,
                     joinedMemberContributorId = message.messageData.joinedMemberContributorId,
+                    requestingContributor = message.requestingContributor,
+                )
+            }
+        }
+
+    fun processTasksClosed(message: A6InfraMessageDto<TasksClosed>) =
+        runBlocking {
+            if (message.topic == A6InfraTopics.TASKS_CLOSED.value &&
+                message.targetType == A6DomainResource.PROJECT_MANAGEMENT
+            ) {
+                val managementId = message.messageData.projectManagementId
+                service.processManagementTasksClosed(
+                    projectManagementId = managementId,
+                    closedTasks = message.messageData.collection,
                     requestingContributor = message.requestingContributor,
                 )
             }

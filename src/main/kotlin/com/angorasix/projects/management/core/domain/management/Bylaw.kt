@@ -19,18 +19,19 @@ class Bylaw<T>(
  *
  * @author rozagerardo
  */
-enum class BylawWellknownScope {
+enum class BylawWellknownScope(
+    val value: String,
+) {
     // (definitionType: KClass<out Any>) {
     // GOVERNANCE / OWNERSHIP
-    OWNERSHIP_IS_A6MANAGED, // (Boolean::class, BylawWellknownCateogries.GOVERNANCE),
-    FINANCIAL_CURRENCIES, // (Set::class, BylawWellknownCateogries.FINANCIAL),
+    OWNERSHIP_IS_A6MANAGED("OWNERSHIP_IS_A6MANAGED"), // (Boolean::class, BylawWellknownCateogries.GOVERNANCE),
+    FINANCIAL_CURRENCIES("FINANCIAL_CURRENCIES"), // (Set::class, BylawWellknownCateogries.FINANCIAL),
+
+    // TASKS DISTRIBUTION RULES -- PER CURRENCY(?)
+    CURRENCYBASED_STARTUP_RETRIBUTION_PERIOD("{CURRENCY}--STARTUP_RETRIBUTION_PERIOD"), // ((Duration::class),
+    CURRENCYBASED_REGULAR_RETRIBUTION_PERIOD("{CURRENCY}--REGULAR_RETRIBUTION_PERIOD"), // ((Duration::class),
 
     // POTENTIAL / UNUSED YET
-    OPERATION_CORE_RETRIBUTION_MODEL, // (String::class),
-    DECISION_MECHANISM, // ((String::class),
-    OWNERSHIP_MECHANISM, // ((String::class),
-    STARTUP_MIN_RELEASE_DATE, // ((Instant::class),
-    STARTUP_MAX_RELEASE_DATE, // ((Instant::class),
-    STARTUP_RETRIBUTION_PERIOD, // ((Duration::class),
-    STARTUP_RETRIBUTION_MODEL, // ((String::class),
+    OPERATION_CORE_RETRIBUTION_MODEL("OPERATION_CORE_RETRIBUTION_MODEL"), // (String::class),
+    OWNERSHIP_MECHANISM("OWNERSHIP_MECHANISM"), // ((String::class),
 }

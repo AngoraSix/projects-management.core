@@ -4,6 +4,7 @@ configs:
     bindings:
       projectManagementCreated: ${A6_PROJECTS_RABBITMQ_BINDINGS_PROJECTMANAGEMENTCREATED:projectManagementCreated}
       managementContributorRegistered: ${A6_PROJECTS_RABBITMQ_BINDINGS_MANAGEMENTCONTRIBUTORREGISTERED:managementContributorRegistered}
+      managementTasksClosed: ${A6_PROJECTS_RABBITMQ_BINDINGS_MANAGEMENTTASKSCLOSED:managementTasksClosed}
 
 spring:
   cloud:
@@ -11,14 +12,21 @@ spring:
       output-bindings: # we need explicit bindings bc we use StreamBridge
         - ${configs.amqp.bindings.projectManagementCreated}
         - ${configs.amqp.bindings.managementContributorRegistered}
+        - ${configs.amqp.bindings.managementTasksClosed}
       bindings:
         projectManagementCreated:
           destination: ${A6_PROJECTS_RABBITMQ_OUTPUT_PROJECTMANAGEMENTCREATED_EXCHANGE:projectManagementCreated}
         managementContributorRegistered:
           destination: ${A6_PROJECTS_RABBITMQ_OUTPUT_MANAGEMENTCONTRIBUTORREGISTERED_EXCHANGE:managementContributorRegistered}
+        managementTasksClosed:
+          destination: ${A6_PROJECTS_RABBITMQ_OUTPUT_MANAGEMENTTASKSCLOSED_EXCHANGE:managementTasksClosed}
         processManagementMemberJoined-in-0:
           destination: ${A6_PROJECTS_RABBITMQ_OUTPUT_PROCESSMANAGEMENTMEMBERJOINED_INPUT_EXCHANGE:managementClubMemberJoined} # existing exchange (or creates)?
           group: ${A6_PROJECTS_RABBITMQ_OUTPUT_PROCESSMANAGEMENTMEMBERJOINED_INPUT_QUEUE:processForManagement}
+          binder: a6Rabbit
+        processTasksClosed-in-0:
+          destination: ${A6_PROJECTS_RABBITMQ_OUTPUT_TASKSCLOSED_INPUT_EXCHANGE:tasksClosed} # existing exchange (or creates)?
+          group: ${A6_PROJECTS_RABBITMQ_OUTPUT_TASKSCLOSED_INPUT_QUEUE:processForManagement}
           binder: a6Rabbit
       rabbit:
         bindings:
@@ -28,7 +36,13 @@ spring:
           managementContributorRegistered:
             producer:
               republishToDlq: false
+          managementTasksClosed:
+            producer:
+              republishToDlq: false
           processManagementMemberJoined-in-0:
+            consumer:
+              republishToDlq: false
+          processTasksClosed-in-0:
             consumer:
               republishToDlq: false
       binders:
@@ -43,4 +57,4 @@ spring:
                 password: ${A6_PROJECTS_RABBITMQ_PASSWORD:guest}
                 virtual-host: ${A6_PROJECTS_RABBITMQ_VHOST:/}
     function:
-      definition: processManagementMemberJoined
+      definition: processManagementMemberJoined;processTasksClosed
