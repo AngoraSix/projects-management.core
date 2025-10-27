@@ -8,7 +8,7 @@
     <artifactId>projects.management.core</artifactId>
     <name>projects.management.core</name>
     <description>Projects Management Core Service</description>
-    <version>0.3.0</version>
+    <version>0.4.0</version>
 
     <parent>
         <artifactId>parent-pom-spring-kotlin</artifactId>
