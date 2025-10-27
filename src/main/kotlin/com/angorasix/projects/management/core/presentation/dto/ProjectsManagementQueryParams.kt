@@ -9,4 +9,6 @@ enum class ProjectsManagementQueryParams(
     val param: String,
 ) {
     PROJECT_IDS("projectIds"),
+    ADMIN_ID("adminId"),
+    IDS("ids"),
 }

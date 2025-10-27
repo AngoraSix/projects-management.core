@@ -1,6 +1,13 @@
 server:
   port: ${A6_PROJECTS_MGMT_CORE_PORT:10300}
 
+logging:
+  level:
+    root: DEBUG
+    "[org.springframework.http.server.reactive]": ${A6_PROJECTS_MGMT_CORE_LOGGING_LEVEL_GATEWAY:TRACE}
+    "[org.springframework.web.reactive]": ${A6_PROJECTS_MGMT_CORE_LOGGING_LEVEL_GATEWAY:TRACE}
+
+
 spring:
   config:
     import: classpath:/api.yml, classpath:/security.yml, classpath:/amqp.yml

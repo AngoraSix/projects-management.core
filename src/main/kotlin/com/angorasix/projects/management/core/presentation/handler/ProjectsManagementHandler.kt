@@ -6,6 +6,7 @@ import com.angorasix.commons.presentation.dto.IsAdminDto
 import com.angorasix.commons.reactive.presentation.error.resolveBadRequest
 import com.angorasix.commons.reactive.presentation.error.resolveNotFound
 import com.angorasix.projects.management.core.application.ProjectsManagementService
+import com.angorasix.projects.management.core.domain.management.Bylaw
 import com.angorasix.projects.management.core.domain.management.ManagementConstitution
 import com.angorasix.projects.management.core.domain.management.ProjectManagement
 import com.angorasix.projects.management.core.infrastructure.config.configurationproperty.api.ApiConfigs
@@ -13,8 +14,6 @@ import com.angorasix.projects.management.core.infrastructure.queryfilters.ListPr
 import com.angorasix.projects.management.core.presentation.dto.ManagementConstitutionDto
 import com.angorasix.projects.management.core.presentation.dto.ProjectManagementDto
 import com.angorasix.projects.management.core.presentation.dto.ProjectsManagementQueryParams
-import com.angorasix.projects.management.core.presentation.dto.convertToDomain
-import com.angorasix.projects.management.core.presentation.dto.convertToDto
 import kotlinx.coroutines.flow.map
 import org.springframework.hateoas.IanaLinkRelations
 import org.springframework.hateoas.MediaTypes
@@ -48,7 +47,7 @@ class ProjectsManagementHandler(
         val requestingContributor =
             request.attributes()[AngoraSixInfrastructure.REQUEST_ATTRIBUTE_CONTRIBUTOR_KEY]
         return service
-            .findProjectManagements(request.queryParams().toQueryFilter())
+            .findProjectManagements(request.queryParams().toQueryFilter(), requestingContributor as? A6Contributor)
             .map {
                 it.convertToDto(requestingContributor as? A6Contributor, apiConfigs, request)
             }.let {
@@ -308,15 +307,33 @@ private fun ProjectManagementDto.convertToDomain(
     )
 }
 
-private fun ManagementConstitution.convertToDto(): ManagementConstitutionDto =
-    ManagementConstitutionDto(bylaws.mapValues { (_, b) -> b.convertToDto() })
+private fun ManagementConstitution.convertToDto(): ManagementConstitutionDto = ManagementConstitutionDto(bylaws.unflattenBylaws())
 
 private fun ManagementConstitutionDto.convertToDomain(): ManagementConstitution =
     ManagementConstitution(
-        bylaws?.mapValues { (_, b) -> b.convertToDomain() } ?: emptyMap(),
+        bylaws?.flattenBylaws() ?: emptyMap(),
     )
 
 private fun MultiValueMap<String, String>.toQueryFilter(): ListProjectsManagementFilter =
     ListProjectsManagementFilter(
-        get(ProjectsManagementQueryParams.PROJECT_IDS.param)?.flatMap { it.split(",") },
+        projectIds = get(ProjectsManagementQueryParams.PROJECT_IDS.param)?.flatMap { it.split(",") },
+        adminId = get(ProjectsManagementQueryParams.ADMIN_ID.param)?.flatMap { it.split(",") }?.toSet(),
+        ids = get(ProjectsManagementQueryParams.IDS.param)?.flatMap { it.split(",") },
     )
+
+private fun Map<String, Map<String, Any>>.flattenBylaws(): Map<String, Bylaw<Any>> =
+    this
+        .flatMap { (category, innerMap) ->
+            innerMap.map { (key, value) ->
+                key to Bylaw(value, category)
+            }
+        }.toMap()
+
+private fun Map<String, Bylaw<Any>>.unflattenBylaws(): Map<String, Map<String, Any>> =
+    this.entries
+        .groupBy { it.value.category }
+        .mapValues { (_, entries) ->
+            entries.associate { (key, bylaw) ->
+                key to bylaw.definition
+            }
+        }

@@ -9,7 +9,7 @@ package com.angorasix.projects.management.core.domain.management
  */
 class Bylaw<T>(
     val definition: T,
-    val category: String? = null,
+    val category: String,
 )
 
 /**
