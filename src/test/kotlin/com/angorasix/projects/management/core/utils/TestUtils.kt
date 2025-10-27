@@ -6,7 +6,6 @@ import com.angorasix.projects.management.core.domain.management.BylawWellknownSc
 import com.angorasix.projects.management.core.domain.management.ManagementConstitution
 import com.angorasix.projects.management.core.domain.management.ManagementStatus
 import com.angorasix.projects.management.core.domain.management.ProjectManagement
-import com.angorasix.projects.management.core.presentation.dto.BylawDto
 import com.angorasix.projects.management.core.presentation.dto.ManagementConstitutionDto
 import com.angorasix.projects.management.core.presentation.dto.ProjectManagementDto
 
@@ -33,8 +32,9 @@ fun mockConstitution(): ManagementConstitution =
             BylawWellknownScope.OPERATION_CORE_RETRIBUTION_MODEL.name to
                 Bylaw(
                     "CAPS",
+                    "CATEGORYA",
                 ),
-            BylawWellknownScope.OWNERSHIP_MECHANISM.name to Bylaw("CAPS-BASED"),
+            BylawWellknownScope.OWNERSHIP_MECHANISM.name to Bylaw("CAPS-BASED", "CATEGORYB"),
         ),
     )
 
@@ -54,10 +54,7 @@ private fun getRandomString(length: Int): String {
 fun mockConstitutionDto(): ManagementConstitutionDto =
     ManagementConstitutionDto(
         mapOf(
-            BylawWellknownScope.OPERATION_CORE_RETRIBUTION_MODEL.name to
-                BylawDto(
-                    "CAPS",
-                ),
-            BylawWellknownScope.OWNERSHIP_MECHANISM.name to BylawDto("CAPS-BASED"),
+            "CATEGORY-A" to mapOf(BylawWellknownScope.OPERATION_CORE_RETRIBUTION_MODEL.name to "CAPS"),
+            "CATEGORY-B" to mapOf(BylawWellknownScope.OWNERSHIP_MECHANISM.name to "CAPS-BASED"),
         ),
     )

@@ -30,7 +30,10 @@ class ProjectsManagementService(
 
     suspend fun findSingleProjectManagementByProjectId(projectId: String): ProjectManagement? = repository.findByProjectId(projectId)
 
-    fun findProjectManagements(filter: ListProjectsManagementFilter): Flow<ProjectManagement> = repository.findUsingFilter(filter)
+    fun findProjectManagements(
+        filter: ListProjectsManagementFilter,
+        requestingContributor: A6Contributor? = null,
+    ): Flow<ProjectManagement> = repository.findUsingFilter(filter, requestingContributor)
 
     suspend fun createProjectManagement(
         projectManagement: ProjectManagement,
@@ -46,7 +49,7 @@ class ProjectsManagementService(
         requestingContributor: A6Contributor,
     ): ProjectManagement? {
         val projectManagementToUpdate =
-            repository.findForContributorUsingFilter(
+            repository.findSingleUsingFilter(
                 ListProjectsManagementFilter(
                     listOf(updateData.projectId),
                     setOf(requestingContributor.contributorId),
@@ -73,7 +76,7 @@ class ProjectsManagementService(
         projectManagementId: String,
         simpleContributor: A6Contributor,
     ): ProjectManagement? =
-        repository.findForContributorUsingFilter(
+        repository.findSingleUsingFilter(
             ListProjectsManagementFilter(
                 null,
                 setOf(simpleContributor.contributorId),

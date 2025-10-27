@@ -17,12 +17,14 @@ import org.springframework.data.mongodb.core.query.Query
  * @author rozagerardo
  */
 class ProjectManagementFilterRepositoryImpl(
-    val mongoOps: ReactiveMongoOperations,
+    private val mongoOps: ReactiveMongoOperations,
 ) : ProjectManagementFilterRepository {
-    override fun findUsingFilter(filter: ListProjectsManagementFilter): Flow<ProjectManagement> =
-        mongoOps.find(filter.toQuery(), ProjectManagement::class.java).asFlow()
+    override fun findUsingFilter(
+        filter: ListProjectsManagementFilter,
+        requestingContributor: A6Contributor?,
+    ): Flow<ProjectManagement> = mongoOps.find(filter.toQuery(), ProjectManagement::class.java).asFlow()
 
-    override suspend fun findForContributorUsingFilter(
+    override suspend fun findSingleUsingFilter(
         filter: ListProjectsManagementFilter,
         requestingContributor: A6Contributor?,
     ): ProjectManagement? =
