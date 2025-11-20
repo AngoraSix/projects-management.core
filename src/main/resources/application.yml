@@ -3,9 +3,9 @@ server:
 
 logging:
   level:
-    root: DEBUG
-    "[org.springframework.http.server.reactive]": ${A6_PROJECTS_MGMT_CORE_LOGGING_LEVEL_GATEWAY:TRACE}
-    "[org.springframework.web.reactive]": ${A6_PROJECTS_MGMT_CORE_LOGGING_LEVEL_GATEWAY:TRACE}
+    root: ${A6_PROJECTS_MGMT_CORE_LOGGING_LEVEL_GENERAL:INFO}
+    "[org.springframework.http.server.reactive]": ${A6_PROJECTS_MGMT_CORE_LOGGING_LEVEL_GATEWAY:INFO}
+    "[org.springframework.web.reactive]": ${A6_PROJECTS_MGMT_CORE_LOGGING_LEVEL_GATEWAY:INFO}
 
 
 spring:
